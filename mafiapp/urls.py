@@ -31,5 +31,7 @@ urlpatterns = [
     url(r'^abstract/', include('abstract.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^player/', include('playerinterface.urls')),
+    url(r'^gm/', include('gminterface.urls')),
+    url(r'^accounts/', include('django.contrib.auth.urls')),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
