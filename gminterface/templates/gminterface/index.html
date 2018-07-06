@@ -1,0 +1,23 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h1> Player List </h1>
+<ul>
+	{% for player in players %}
+	<li> <a href= {% url 'playerprofile' player %}>{{player}}</a></li>
+	{% endfor %}
+</ul>
+<h1> Item List </h1>
+<ul>
+	{% for item in items %}
+	<li> <a href= {% url 'itemprofile' item %}>{{item}}</a></li>
+	{% endfor %}
+</ul>
+<h1> Ability List </h1>
+<ul>
+	{% for ability in abilities %}
+	<li><a href= {% url 'abilityprofile' ability %}>{{ability}}</a></li>
+	{% endfor %}
+</ul>
+
+{% endblock %}

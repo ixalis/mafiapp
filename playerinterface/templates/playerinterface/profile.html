@@ -1,0 +1,43 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    {% if attributes %}
+    	<ul>
+
+      	{% for attribute in attributes %} 
+	<li> {{attribute}}: {{attribute.value}} </li>
+      	{% endfor %}
+   	
+	</ul>
+    {% endif %}
+
+     <h1>Abilities</h1>
+
+    {% if abilities %}
+    	<ul>
+
+      	{% for ability in abilities %} 
+      	<li> {{ability}} </li>
+      	{% endfor %}
+   	
+	</ul>
+
+    {% else %}
+      	<p>You have no ablities. Sorry?</p>
+    {% endif %}       
+    <h1>Inventory</h1>
+
+    {% if items %}
+    	<ul>
+
+      	{% for item in items %} 
+      	<li> {{item}} </li>
+      	{% endfor %}
+   	
+	</ul>
+
+    {% else %}
+      	<p>You have no items. Acquire some?</p>
+    {% endif %}       
+
+{% endblock %}

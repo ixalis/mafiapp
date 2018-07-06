@@ -7,7 +7,7 @@ from django.views import generic
 
 def index(request):
     return HttpResponse("Hello, world. You are at the index")
-
+"""
 def inventory(request, playername):
     user = User.objects.get(username=playername)
     player = Player.objects.get(user=user)
@@ -27,10 +27,19 @@ def inventory(request, playername):
     #return HttpResponse(output)
     #return HttpResponse("You are looking at %s " % poll_id)
 
-class inv( generic.ListView):
+class inv(generic.ListView):
     model = ItemInstance
     template_name= 'playerinterface/inv.html'
     def get_queryset(self):
         #player = Player.objects.get(user=self.request.user)
         return ItemInstance.objects.filter(owner=self.request.user)
         #return ItemInstance.objects.all()
+"""
+def profile(request):
+    user = request.user
+    items = ItemInstance.objects.filter(owner=user)
+    abilities = AbilityInstance.objects.filter(owner=user)
+    attributes = AttributeInstance.objects.filter(owner=user)
+
+    context = {'items':items, 'abilities':abilities, 'attributes':attributes}
+    return render(request, 'playerinterface/profile.html', context)
