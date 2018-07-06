@@ -17,7 +17,7 @@ class Player(models.Model):
         return self.user.username
 
 class Instance(models.Model):
-    owner = models.ForeignKey(Player)
+    owner = models.ForeignKey(User)
     game = models.ForeignKey(Game)
 
     def __str__(self):

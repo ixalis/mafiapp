@@ -2,6 +2,8 @@ from django.shortcuts import render
 from gamegeneration.models import *
 from abstract.models import *
 from django.http import HttpResponse
+from django.views import generic
+#from django.contrib.auth.mixins import LoginRequiredMixin
 
 def index(request):
     return HttpResponse("Hello, world. You are at the index")
@@ -24,3 +26,11 @@ def inventory(request, playername):
     return render(request, 'playerinterface/inventory.html', context)
     #return HttpResponse(output)
     #return HttpResponse("You are looking at %s " % poll_id)
+
+class inv( generic.ListView):
+    model = ItemInstance
+    template_name= 'playerinterface/inv.html'
+    def get_queryset(self):
+        #player = Player.objects.get(user=self.request.user)
+        return ItemInstance.objects.filter(owner=self.request.user)
+        #return ItemInstance.objects.all()

@@ -24,7 +24,6 @@ class Ability(Action):
     pass
 
 class Attribute(models.Model):
-    #game = models.ForeignKey(Game)
     name = models.CharField(max_length=200, default="Status")
     description = models.TextField(default="Description")
 
@@ -32,7 +31,6 @@ class Attribute(models.Model):
         return self.name
 
 class Goal(models.Model):
-    #game = models.ForeignKey(Game)
     name = models.CharField(max_length=200, default="Goal")
     description = models.TextField(default="Description")
 
