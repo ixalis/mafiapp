@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.conf.urls import url, include#, path
+from django.conf.urls import url, include
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -28,10 +28,10 @@ admin.autodiscover()
 urlpatterns = [
     #path('structure/', include('structure.urls')),
     #path('admin/', admin.site.urls),
-    url(r'^abstract/', include('abstract.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^player/', include('playerinterface.urls')),
     url(r'^gm/', include('gminterface.urls')),
     url(r'^accounts/', include('django.contrib.auth.urls')),
+    url(r'^$', include('playerinterface.urls'))
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

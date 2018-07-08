@@ -31,7 +31,7 @@
     	<ul>
 
       	{% for item in items %} 
-      	<li> {{item}} </li>
+	<li> <a href="{% url 'iteminstance' item.id %}">{{item}}</a></li>
       	{% endfor %}
    	
 	</ul>

@@ -1,13 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from gamegeneration.models import *
-from abstract.models import *
 from django.http import HttpResponse
 from django.views import generic
+from forms import *
 #from django.contrib.auth.mixins import LoginRequiredMixin
 
 def index(request):
     return HttpResponse("Hello, world. You are at the index")
-"""
 def inventory(request, playername):
     user = User.objects.get(username=playername)
     player = Player.objects.get(user=user)
@@ -34,7 +33,29 @@ class inv(generic.ListView):
         #player = Player.objects.get(user=self.request.user)
         return ItemInstance.objects.filter(owner=self.request.user)
         #return ItemInstance.objects.all()
-"""
+
+def iteminstance(request, itemid):
+    item = ItemInstance.objects.filter(id=itemid)
+    #itype = item.itype
+    context = {'item':item, 'itemid':itemid}
+    return render(request, 'iteminstance.html', context)
+
+def itemused(request, itemid):
+    item = ItemInstance.objects.get(id=itemid)
+    parameters = item.get_requests()
+    if request.method == 'POST':
+        form = UseItemForm(request.POST, extra=parameters)
+        if form.is_valid():
+            #for (question, answer) in form.extra_answers():
+                #save_answer(request, question, answer)
+            item.use(form.get_answers())
+            return redirect("profile")
+    else:
+        form = UseItemForm(extra = parameters)
+    return render(request, "form.html", {'form':form})
+
+
+
 def profile(request):
     user = request.user
     items = ItemInstance.objects.filter(owner=user)

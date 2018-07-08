@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from gamegeneration.models import *
-from abstract.models import *
 from django.http import HttpResponse
 
 def index(request):

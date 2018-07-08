@@ -15,8 +15,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-#ADMIN_MEDIA_PREFIX = '/scripts/django/static/admin/'
-ADMIN_MEDIA_PREFIX = '/__scripts/django/static/admin/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -44,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'abstract',
     'playerinterface',
     'gminterface',
     'gamegeneration',
@@ -64,11 +61,12 @@ ROOT_URLCONF = 'mafiapp.urls'
 
 WSGI_APPLICATION = 'mafiapp.wsgi.application'
 
+TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'),)
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['./templates'],
-        'APP_DIRS': True,
+        'APP_DIRS': False,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -86,12 +84,6 @@ WSGI_APPLICATION = 'mafiapp.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#    }
-#}
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',

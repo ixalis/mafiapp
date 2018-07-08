@@ -1,0 +1,11 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h1>{{item}}</h1>
+Description: {{item}}
+
+This is an item instance
+<br>
+<a href = "{% url 'itemused' itemid %}">USE ITEM</a>
+
+{% endblock %}
