@@ -48,8 +48,8 @@ def itemused(request, itemid):
         if form.is_valid():
             #for (question, answer) in form.extra_answers():
                 #save_answer(request, question, answer)
-            item.use(form.get_answers())
-            return redirect("profile")
+            message = item.use(form.get_answers())
+            return HttpResponse(message)
     else:
         form = UseItemForm(extra = parameters)
     return render(request, "form.html", {'form':form})

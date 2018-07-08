@@ -26,8 +26,6 @@ from django.conf.urls.static import static
 admin.autodiscover()
 
 urlpatterns = [
-    #path('structure/', include('structure.urls')),
-    #path('admin/', admin.site.urls),
     url(r'^admin/', admin.site.urls),
     url(r'^player/', include('playerinterface.urls')),
     url(r'^gm/', include('gminterface.urls')),
