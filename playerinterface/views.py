@@ -41,12 +41,13 @@ def itemuse(request, itemid):
             parameters = form.get_answers()
             message = item.use(form.get_answers())
             #Display the message you get at the end
-            return HttpResponse(message)
+            context = {"message":message}
+            return render(request, 'gmmessage.html', context)
     else:
         form = AutoGenerateForm(extra = requests)
     
     #Render the form
-    context = {'form':form}
+    context = {'form':form, 'main':item.get_itype().get_name()}
     return render(request, "form.html", context)
 
 def abilityinstance(request, abilityid):
@@ -73,12 +74,13 @@ def abilityactivate(request, abilityid):
             parameters = form.get_answers()
             message = ability.use(form.get_answers())
             #Display the message you get at the end
-            return HttpResponse(message)
+            context = {"message":message}
+            return render(request, "gmmessage.html", context)
     else:
         form = AutoGenerateForm(extra = requests)
     
     #Render the form
-    context = {'form':form}
+    context = {'form':form, 'main':ability.get_itype().get_name()}
     return render(request, "form.html", context)
 
 

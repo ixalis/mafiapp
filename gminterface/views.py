@@ -17,17 +17,17 @@ def playerprofile(request, playername):
     context = {'player':player, 'items':items, 'abilities':abilities}
     return render(request, 'playerinterface/profile.html', context)
 
-def itemprofile(request, itemname):
-    item = Item.objects.get(name=itemname)
+def itemprofile(request, itemid):
+    item = Item.objects.get(id=itemid)
     context = {'item':item}
     return render(request, 'gminterface/itemprofile.html', context)
 
-def abilityprofile(request, abilityname):
-    ability = Ability.objects.get(name=abilityname)
+def abilityprofile(request, abilityid):
+    ability = Ability.objects.get(id=abilityid)
     context = {'ability':ability}
     return render(request, 'gminterface/abilityprofile.html', context)
 
-def attributeprofile(request, attributename):
-    attribute = Attribute.objects.get(name=attributename)
+def attributeprofile(request, attributeid):
+    attribute = Attribute.objects.get(id=attributeid)
     context = {'attribute':attribute}
     return render(request, 'gminterface/attributeprofile.html'. context)

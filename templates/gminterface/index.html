@@ -16,7 +16,7 @@
 <h1> Ability List </h1>
 <ul>
 	{% for ability in abilities %}
-	<li><a href= {% url 'itemprofile' ability.id %}>{{ability}}</a></li>
+	<li><a href= {% url 'abilityprofile' ability.id %}>{{ability}}</a></li>
 	{% endfor %}
 </ul>
 

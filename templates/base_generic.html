@@ -14,7 +14,7 @@
 .col-sm-2 {height:1000px; background-color: DarkGrey;}
 .col-sm-10 {height:1000px; background-color: LightGray;}
 th,td {padding: 5px;}
-h1 {font-weight:bold; font-family:"cursive"}
+h1,h3 {font-weight:bold; font-family:"cursive"}
 </style>
 </head>
 
@@ -26,9 +26,11 @@ h1 {font-weight:bold; font-family:"cursive"}
       <div class="col-sm-2">
       {% block sidebar %}
       <ul class="sidebar-nav">
-	      <li><a href="{% url 'profile' %}">{{ user }}</a></li>
 	  {% if user.is_authenticated %}
-	  <li><a href="{% url 'index' %}">GM Index</a></li>
+	  <li><h3><a href="{% url 'profile' %}">{{ user }}</a></h3></li>
+		{% ifequal user.groups.all.0.name "GM" %}
+	  	<li><a href="{% url 'index' %}">GM Index</a></li>
+	  	{% endifequal %}
 	  <li><a href="{% url 'logout' %}">Logout</a></li>
 	  {% else %}
 	  <li><a href="{% url 'login' %}">Login</a></li>
