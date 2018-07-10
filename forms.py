@@ -1,4 +1,5 @@
 from django import forms
+from gamegeneration.models import *
 
 class AutoGenerateForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -8,7 +9,15 @@ class AutoGenerateForm(forms.Form):
 
         #For every fieldname in requests, make a new field
         for i, field in enumerate(extra.keys()):
-            self.fields[field] = forms.CharField(label=extra[field][0])
+            ftype = extra[field][1]
+            if ftype=='User':
+                self.fields[field] = forms.ModelChoiceField(queryset=User.objects.all())
+            elif ftype=='Item':
+                self.fields[field] = forms.ModelChoiceField(queryset=Item.objects.all())
+            elif ftype=='int':
+                self.fields[field] = forms.IntegerField()
+            else:
+                self.fields[field] = forms.CharField(label=extra[field][0])
 
     def get_answers(self):
         #Initialize Answers as dictionary

@@ -1,6 +1,7 @@
 {% extends "base_generic.html" %}
 {% block content %}
 <h1> {{player}} </h1>
+<h4><a href ="{% url 'inbox' %}">Inbox</a></h4>
     {% if attributes %}
     	<table>
       	{% for attribute in attributes %} 
@@ -13,13 +14,16 @@
     {% endif %}
 
      <h2>Abilities</h2>
-
     {% if abilities %}
-    	<ul>
+    	<table>
 
       	{% for ability in abilities %} 
-	<li> <a href="{% url 'abilityinstance' ability.id %}"> {{ability.itype}} </a></li>
+	<tr>
+		<th> <a href="{% url 'abilityactivate' ability.id %}"> {{ability.itype}} </a></th>
+		<th> {{ability.itype.description}}</th>
+	</tr>
       	{% endfor %}
+	</table>
    	
 	</ul>
 
@@ -29,16 +33,18 @@
     <h2>Inventory</h2>
 
     {% if items %}
-    	<ul>
+    	<table>
 
       	{% for item in items %} 
-	<li> <a href="{% url 'iteminstance' item.id %}">{{item.itype}}</a></li>
+	<tr> 
+		<th><a href="{% url 'itemuse' item.id %}">{{item.itype}}</a></th>
+		<th>{{item.itype.description}}</th>
+	</tr>
       	{% endfor %}
    	
-	</ul>
+	</table>
 
     {% else %}
       	<p>You have no items. Acquire some?</p>
     {% endif %}       
-
 {% endblock %}

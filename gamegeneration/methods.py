@@ -52,9 +52,10 @@ def usecoin(parameters):
 def activatekill(parameters):
     target = User.objects.get(username=parameters['target'])
     owner = User.objects.get(username=parameters['owner'])
+    admin = User.objects.get(username='admin')
     att = Attribute.objects.get(name='Alive')
     attribute = AttributeInstance.objects.filter(itype=att).get(owner=target)
     setattr(attribute, 'value', 1)
     attribute.save()
-    message = "You killed " + target.username + " at " + parameters['time'] + ' in ' + parameters['place'] + '.'
-    return message
+    messagetext = "You killed " + target.username + " at " + parameters['time'] + ' in ' + parameters['place'] + '.'
+    return messagetext

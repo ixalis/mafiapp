@@ -1,11 +1,15 @@
 from gamegeneration.models import *
+def all():
+    initializebase()
+    initializeplayers()
+    initializeinstance()
 def initializebase():
     base = [
         Item(name='Mint', description='Generate some not-games.'),
         Item(name='Coin', description='Um, What?'),
         Item(name='Taser', description='Defend thyself, or something.'),
         Item(name='Flower', description='Proof of your lesbianism.'),
-        Item(name='Honey Jar', description='BEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEES'),
+        Item(name='Honey Jar', description='BEEEEEEEEEEEEEEEEEEEES'),
         Ability(name='Lynch Vote', description='Can you find the mafia?'),
         Ability(name='Kill', description='Congrats! You can kill someone.'),
         Ability(name='Pair Investigation', description='Awww, jealousy is cute.'),
@@ -25,7 +29,7 @@ def initializeplayers():
     for thing in players:
         thing.save()
 
-def intializeinstance():
+def initializeinstance():
     instances = [
         ItemInstance(itype=Item.objects.get(name='Coin'), owner=User.objects.get(username='player1')),
         ItemInstance(itype=Item.objects.get(name='Taser'), owner=User.objects.get(username='player2')),
@@ -37,5 +41,6 @@ def intializeinstance():
     for thing in instances:
         thing.save()
     for att in Attribute.objects.all():
-        atti = AttributeInstance(itype=att)
-        atti.save()
+        for user in User.objects.all():
+            atti = AttributeInstance(itype=att, owner=user)
+            atti.save()

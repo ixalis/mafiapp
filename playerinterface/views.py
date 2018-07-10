@@ -4,6 +4,8 @@ from django.http import HttpResponse
 from django.views import generic
 from forms import *
 
+def home(request):
+    return render(request, 'home.html', {})
 
 def profile(request):
     """
@@ -13,20 +15,11 @@ def profile(request):
     items = ItemInstance.objects.filter(owner=user)
     abilities = AbilityInstance.objects.filter(owner=user)
     attributes = AttributeInstance.objects.filter(owner=user)
+    attributedict = {}
+    for x in attribute
 
     context = {'user':user, 'player':user, 'items':items, 'abilities':abilities, 'attributes':attributes}
     return render(request, 'playerinterface/profile.html', context)
-
-def iteminstance(request, itemid):
-    """
-    View for a single item instance
-    """
-    item = ItemInstance.objects.get(id=itemid)
-    itype = item.get_itype()
-    description = itype.get_description()
-    name = itype.get_name()
-    context = {'name':name, 'description':description, 'itemid':itemid}
-    return render(request, 'iteminstance.html', context)
 
 def itemuse(request, itemid):
     """
@@ -50,17 +43,6 @@ def itemuse(request, itemid):
     context = {'form':form, 'main':item.get_itype().get_name()}
     return render(request, "form.html", context)
 
-def abilityinstance(request, abilityid):
-    """
-    View for a single item instance
-    """
-    ability = AbilityInstance.objects.get(id=abilityid)
-    itype = ability.get_itype()
-    description = itype.get_description()
-    name = itype.get_name()
-    context = {'name':name, 'description':description, 'abilityid':abilityid}
-    return render(request, 'abilityinstance.html', context)
-
 def abilityactivate(request, abilityid):
     """
     View for form for using an item
@@ -73,6 +55,8 @@ def abilityactivate(request, abilityid):
         if form.is_valid():
             parameters = form.get_answers()
             message = ability.use(form.get_answers())
+            m = Message(fromuser=User.objects.get(username='admin'), touser=request.user, content=message)
+            m.save()
             #Display the message you get at the end
             context = {"message":message}
             return render(request, "gmmessage.html", context)
@@ -82,6 +66,12 @@ def abilityactivate(request, abilityid):
     #Render the form
     context = {'form':form, 'main':ability.get_itype().get_name()}
     return render(request, "form.html", context)
+
+def inbox(request):
+    user = request.user
+    messages = Message.objects.filter(fromuser=user)
+    context = {'messages':messages}
+    return render(request, "playerinterface/inbox.html", context)
 
 
 

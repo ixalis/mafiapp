@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import datetime
 
 ############# Abstract Game concepts ##############
 class Base(models.Model):
@@ -178,4 +179,25 @@ class AttributeInstance(Instance):
     itype = models.ForeignKey(Attribute)
     value = models.IntegerField(default = 0)
 
+class Message(models.Model):
+    """
+    A message, to be saved
+    """
+    fromuser = models.ForeignKey(User, related_name='from_message_set')
+    touser = models.ForeignKey(User, related_name='to_message_set')
+    content = models.CharField(max_length=1000)
+    deliverytime = models.DateTimeField(auto_now_add=True, blank=True)
+    class Meta:
+        ordering = ['deliverytime']
+    def __str__(self):
+        return "(" + "{:%H:%M:%S}".format(self.deliverytime) +") "+self.content
+
+    def get_from(self):
+        return self.fromuser
+    def get_to(self):
+        return self.touser
+    def get_content(self):
+        return content
+    def get_time(self):
+        return self.deliverytime
 

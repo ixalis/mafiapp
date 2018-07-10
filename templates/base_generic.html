@@ -28,13 +28,14 @@ h1,h3 {font-weight:bold; font-family:"cursive"}
       <ul class="sidebar-nav">
 	  {% if user.is_authenticated %}
 	  <li><h3><a href="{% url 'profile' %}">{{ user }}</a></h3></li>
-		{% ifequal user.groups.all.0.name "GM" %}
+		{% ifequal user.username "admin" %}
 	  	<li><a href="{% url 'index' %}">GM Index</a></li>
 	  	{% endifequal %}
 	  <li><a href="{% url 'logout' %}">Logout</a></li>
 	  {% else %}
 	  <li><a href="{% url 'login' %}">Login</a></li>
 	  {% endif %}
+	  <li><a href="{% url 'home' %}">Home</a></li>
       </ul>
      {% endblock %}
       </div>
