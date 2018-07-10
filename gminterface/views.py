@@ -12,9 +12,10 @@ def index(request):
 
 def playerprofile(request, playername):
     player = User.objects.get(username=playername)
+    attributes = AttributeInstance.objects.filter(owner=player)
     items = ItemInstance.objects.filter(owner=player)
     abilities = AbilityInstance.objects.filter(owner=player)
-    context = {'player':player, 'items':items, 'abilities':abilities}
+    context = {'player':player, 'items':items, 'abilities':abilities, 'attributes':attributes}
     return render(request, 'playerinterface/profile.html', context)
 
 def itemprofile(request, itemid):

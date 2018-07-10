@@ -125,7 +125,7 @@ class Instance(models.Model):
         abstract = True
 
     owner = models.ForeignKey(User)
-    game = models.ForeignKey(Game)
+    #game = models.ForeignKey(Game)
 
     def __str__(self):
         return '{0} ({1})'.format(self.owner, self.itype.name)
@@ -133,8 +133,8 @@ class Instance(models.Model):
     #Get functions
     def get_owner(self):
         return self.owner
-    def get_game(self):
-        return self.game
+    #def get_game(self):
+    #    return self.game
     def get_itype(self):
         return self.itype
 
@@ -146,6 +146,7 @@ class ActionInstance(Instance):
     class Meta:
         abstract = True
     def use(self, parameters=None):
+        parameters['owner'] = self.get_owner()
         method_to_call = self.itype.get_usemethod()
         if parameters:
             result = method_to_call(parameters)
@@ -176,3 +177,5 @@ class AttributeInstance(Instance):
     """
     itype = models.ForeignKey(Attribute)
     value = models.IntegerField(default = 0)
+
+

@@ -23,13 +23,18 @@ questionkill = {
 ######################## ITEM AND ABILITY METHODS ########################
 def usetaser(parameters):
     target = parameters['target']
-    #Work in progress
-    return 'You have tased ' + target + '. They can not kill you for the next 15 minutes, and are roleblocked for today.'
+    message = 'You have tased ' + target + '. They can not kill you for the next 15 minutes, and are roleblocked for today.'
+    return message
 
 def activatelynchvote(parameters):
-    #work in progress
-    target = parameters['target']
-    pass
+    target = User.objects.get(username=parameters['target'])
+    owner = User.objects.get(username=parameters['owner'])
+    att = Attribute.objects.get(name='Voted for')
+    attribute = AttributeInstance.objects.filter(itype=att).get(owner=owner)
+    setattr(attribute, 'value', target.id)
+    attribute.save()
+    message = "You voted! You are a true patriot."
+    return message
 
 def usecoin(parameters):
     action = parameters['action']
@@ -45,4 +50,11 @@ def usecoin(parameters):
     return answer
 
 def activatekill(parameters):
-    pass
+    target = User.objects.get(username=parameters['target'])
+    owner = User.objects.get(username=parameters['owner'])
+    att = Attribute.objects.get(name='Alive')
+    attribute = AttributeInstance.objects.filter(itype=att).get(owner=target)
+    setattr(attribute, 'value', 1)
+    attribute.save()
+    message = "You killed " + target.username + " at " + parameters['time'] + ' in ' + parameters['place'] + '.'
+    return message
