@@ -5,6 +5,9 @@ from django.views import generic
 from forms import *
 
 def home(request):
+    """
+    Home page
+    """
     return render(request, 'home.html', {})
 
 def profile(request):
@@ -15,9 +18,6 @@ def profile(request):
     items = ItemInstance.objects.filter(owner=user)
     abilities = AbilityInstance.objects.filter(owner=user)
     attributes = AttributeInstance.objects.filter(owner=user)
-    attributedict = {}
-    for x in attribute
-
     context = {'user':user, 'player':user, 'items':items, 'abilities':abilities, 'attributes':attributes}
     return render(request, 'playerinterface/profile.html', context)
 
@@ -33,6 +33,8 @@ def itemuse(request, itemid):
         if form.is_valid():
             parameters = form.get_answers()
             message = item.use(form.get_answers())
+            m = Message(addressee=request.user, content=message)
+            m.save()
             #Display the message you get at the end
             context = {"message":message}
             return render(request, 'gmmessage.html', context)
@@ -55,7 +57,7 @@ def abilityactivate(request, abilityid):
         if form.is_valid():
             parameters = form.get_answers()
             message = ability.use(form.get_answers())
-            m = Message(fromuser=User.objects.get(username='admin'), touser=request.user, content=message)
+            m = Message(addressee=request.user, content=message)
             m.save()
             #Display the message you get at the end
             context = {"message":message}

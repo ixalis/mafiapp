@@ -26,3 +26,11 @@ class AutoGenerateForm(forms.Form):
         for field, value in self.cleaned_data.items():
             answers[field]= value
         return answers
+
+class ItemInstanceForm(forms.ModelForm):
+    class Meta:
+        model = ItemInstance
+
+class AbilityInstanceForm(forms.ModelForm):
+    class Meta:
+        model = AbilityInstance

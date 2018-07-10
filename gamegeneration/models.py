@@ -183,8 +183,7 @@ class Message(models.Model):
     """
     A message, to be saved
     """
-    fromuser = models.ForeignKey(User, related_name='from_message_set')
-    touser = models.ForeignKey(User, related_name='to_message_set')
+    addressee = models.ForeignKey(User)
     content = models.CharField(max_length=1000)
     deliverytime = models.DateTimeField(auto_now_add=True, blank=True)
     class Meta:
@@ -192,12 +191,10 @@ class Message(models.Model):
     def __str__(self):
         return "(" + "{:%H:%M:%S}".format(self.deliverytime) +") "+self.content
 
-    def get_from(self):
-        return self.fromuser
-    def get_to(self):
-        return self.touser
+    def get_addressee(self):
+        return self.addresee
     def get_content(self):
-        return content
+        return self.content
     def get_time(self):
         return self.deliverytime
 

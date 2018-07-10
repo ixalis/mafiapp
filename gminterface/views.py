@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from gamegeneration.models import *
 from django.http import HttpResponse
+from forms import *
 
 def index(request):
     players = User.objects.all()
@@ -31,4 +32,16 @@ def abilityprofile(request, abilityid):
 def attributeprofile(request, attributeid):
     attribute = Attribute.objects.get(id=attributeid)
     context = {'attribute':attribute}
-    return render(request, 'gminterface/attributeprofile.html'. context)
+    return render(request, 'gminterface/attributeprofile.html', context)
+
+def generateitem(request, itemid):
+    item = Item.objects.get(id=itemid)
+    if request.method == 'POST':
+        form = ItemInstanceForm(request.POST)
+        if form.is_valid():
+            form.save()
+            #Get answers
+    else:
+       form = ItemInstanceForm()
+    context = {'form':form, 'main':item}
+    return render(request, 'form.html', context)

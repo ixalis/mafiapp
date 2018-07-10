@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^item/(?P<itemid>\w+)/$', views.itemprofile, name='itemprofile'),
     url(r'^ability/(?P<abilityid>\w+)/$', views.abilityprofile, name='abilityprofile'),
     url(r'^attribute/(?P<attributeid>\w+)/$', views.attributeprofile, name='attributeprofile'),
+    url(r'^item/generate/(?P<itemid>\w+)/$', views.generateitem, name='generateitem'),
 
 
 ]

@@ -3,5 +3,8 @@
 {% block content %}
 <h1> {{item.name}} </h1>
 {{item.description}}
+<br>
+<br>
+<a href="{% url 'generateitem' item.id %}">Generate Item</a>
 
 {% endblock %}
