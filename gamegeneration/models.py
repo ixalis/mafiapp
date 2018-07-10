@@ -6,6 +6,9 @@ class Base(models.Model):
     """
     Parent class for all other base things in a given game. 
     """
+    class Meta:
+        abstract = True
+
     #Fields for descripion/name
     name = models.CharField(max_length=200, default="Name")
     description = models.TextField(default="This is where you enter a description.", blank = True)
@@ -32,7 +35,7 @@ class Item(Base):
         Returns method defining use function for this item
         """
         import methods
-        methodname = 'use'+self.name
+        methodname = 'use'+self.name.replace(" ", "").lower()
         method = getattr(methods, methodname)
         return method
     def get_usequestions(self):
@@ -41,7 +44,7 @@ class Item(Base):
         {'field':(question, answertype), }
         """
         import methods
-        name = 'question'+self.name
+        name = 'question'+self.name.replace(" ", "").lower()
         questions = getattr(methods, name)
         return questions
 
@@ -56,7 +59,7 @@ class Ability(Base):
         Returns method defining use function for this abliity
         """
         import methods
-        methodname = 'activate'+self.name
+        methodname = 'activate'+self.name.replace(" ", "").lower()
         method = getattr(methods, methodname)
         return method
     def get_usequestions(self):
@@ -65,7 +68,7 @@ class Ability(Base):
         {'field':(question, answertype), }
         """
         import methods
-        name = 'question'+self.name
+        name = 'question'+self.name.replace(" ", "").lower()
         questions = getattr(methods, name)
         return questions
 
@@ -118,6 +121,9 @@ class Instance(models.Model):
     """
     Base Class for all instances. Defines an owner for each instance, and which game it belongs to.
     """
+    class Meta:
+        abstract = True
+
     owner = models.ForeignKey(User)
     game = models.ForeignKey(Game)
 
@@ -137,6 +143,8 @@ class ActionInstance(Instance):
     """
     Base class for Items and abilities
     """
+    class Meta:
+        abstract = True
     def use(self, parameters=None):
         method_to_call = self.itype.get_usemethod()
         if parameters:

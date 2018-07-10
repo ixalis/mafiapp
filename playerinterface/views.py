@@ -14,7 +14,7 @@ def profile(request):
     abilities = AbilityInstance.objects.filter(owner=user)
     attributes = AttributeInstance.objects.filter(owner=user)
 
-    context = {'items':items, 'abilities':abilities, 'attributes':attributes}
+    context = {'user':user, 'player':user, 'items':items, 'abilities':abilities, 'attributes':attributes}
     return render(request, 'playerinterface/profile.html', context)
 
 def iteminstance(request, itemid):
@@ -48,3 +48,39 @@ def itemuse(request, itemid):
     #Render the form
     context = {'form':form}
     return render(request, "form.html", context)
+
+def abilityinstance(request, abilityid):
+    """
+    View for a single item instance
+    """
+    ability = AbilityInstance.objects.get(id=abilityid)
+    itype = ability.get_itype()
+    description = itype.get_description()
+    name = itype.get_name()
+    context = {'name':name, 'description':description, 'abilityid':abilityid}
+    return render(request, 'abilityinstance.html', context)
+
+def abilityactivate(request, abilityid):
+    """
+    View for form for using an item
+    """
+    ability = AbilityInstance.objects.get(id=abilityid)
+    requests = ability.get_requests()
+
+    if request.method == 'POST':
+        form = AutoGenerateForm(request.POST, extra=requests)
+        if form.is_valid():
+            parameters = form.get_answers()
+            message = ability.use(form.get_answers())
+            #Display the message you get at the end
+            return HttpResponse(message)
+    else:
+        form = AutoGenerateForm(extra = requests)
+    
+    #Render the form
+    context = {'form':form}
+    return render(request, "form.html", context)
+
+
+
+

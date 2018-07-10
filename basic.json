@@ -1,0 +1,23 @@
+[
+	{
+		"model":"gamegeneration.base",
+		"pk": 7,
+		"fields": {
+			"name": "Mint",
+			"description": "Testing"
+		}
+	},
+	{
+		"model":"gamegeneration.item",
+		"pk":7,
+		"fields": {}
+	},
+	{
+		"model":"gamegeneration.base",
+		"pk": 2,
+		"fields": {
+			"name": "Kill",
+			"description": "Testing 123 help"
+		}
+	}
+]
