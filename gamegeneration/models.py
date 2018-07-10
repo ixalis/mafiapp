@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-import methods
 
 ############# Abstract Game concepts ##############
 class Base(models.Model):
@@ -32,6 +31,7 @@ class Item(Base):
         """
         Returns method defining use function for this item
         """
+        import methods
         methodname = 'use'+self.name
         method = getattr(methods, methodname)
         return method
@@ -40,6 +40,7 @@ class Item(Base):
         Returns questions to be asked when using this ability, in the form
         {'field':(question, answertype), }
         """
+        import methods
         name = 'question'+self.name
         questions = getattr(methods, name)
         return questions
@@ -54,6 +55,7 @@ class Ability(Base):
         """
         Returns method defining use function for this abliity
         """
+        import methods
         methodname = 'activate'+self.name
         method = getattr(methods, methodname)
         return method
@@ -62,6 +64,7 @@ class Ability(Base):
         Returns questions to be asked when using this ability, in the form 
         {'field':(question, answertype), }
         """
+        import methods
         name = 'question'+self.name
         questions = getattr(methods, name)
         return questions
@@ -115,7 +118,7 @@ class Instance(models.Model):
     """
     Base Class for all instances. Defines an owner for each instance, and which game it belongs to.
     """
-    owner = models.ForeignKey(User, blank=True)
+    owner = models.ForeignKey(User)
     game = models.ForeignKey(Game)
 
     def __str__(self):
@@ -126,7 +129,7 @@ class Instance(models.Model):
         return self.owner
     def get_game(self):
         return self.game
-    def get_type(self):
+    def get_itype(self):
         return self.itype
 
 
@@ -164,3 +167,4 @@ class AttributeInstance(Instance):
     An instance of an attribute
     """
     itype = models.ForeignKey(Attribute)
+    value = models.IntegerField(default = 0)

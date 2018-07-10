@@ -3,12 +3,12 @@ from django import forms
 class AutoGenerateForm(forms.Form):
     def __init__(self, *args, **kwargs):
         #Supermethod declarations
-        requests = kwargs.pop('extra', {})
-        super(UseItemForm, self).__init__(*args, **kwargs)
+        extra = kwargs.pop('extra', {})
+        super(AutoGenerateForm, self).__init__(*args, **kwargs)
 
         #For every fieldname in requests, make a new field
-        for i, field in enumerate(requests.keys()):
-            self.fields[field] = forms.CharField(label=requests[field][0])
+        for i, field in enumerate(extra.keys()):
+            self.fields[field] = forms.CharField(label=extra[field][0])
 
     def get_answers(self):
         #Initialize Answers as dictionary

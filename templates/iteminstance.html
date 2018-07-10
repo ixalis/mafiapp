@@ -1,11 +1,12 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-<h1>{{item}}</h1>
-Description: {{item}}
+<h1>{{ name }}</h1>
+Description: {{ description }}
 
-This is an item instance
 <br>
-<a href = "{% url 'itemused' itemid %}">USE ITEM</a>
+<br>
+<br>
+<a href = "{% url 'itemuse' itemid %}">USE ITEM</a>
 
 {% endblock %}

@@ -24,10 +24,9 @@
       <div class="col-sm-2">
       {% block sidebar %}
       <ul class="sidebar-nav">
-          <li><a href="{% url 'index' %}">GM Index</a></li>
-	  <!-- <li><a href="">Admin site</a></li> -->
+	      <li><a href="{% url 'profile' %}">{{ user }}</a></li>
 	  {% if user.is_authenticated %}
-	  <li><a href="{% url 'profile' %}">{{user}}</a></li>
+	  <li><a href="{% url 'index' %}">GM Index</a></li>
 	  <li><a href="{% url 'logout' %}">Logout</a></li>
 	  {% else %}
 	  <li><a href="{% url 'login' %}">Login</a></li>

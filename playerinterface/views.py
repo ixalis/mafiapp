@@ -3,60 +3,12 @@ from gamegeneration.models import *
 from django.http import HttpResponse
 from django.views import generic
 from forms import *
-#from django.contrib.auth.mixins import LoginRequiredMixin
-
-def index(request):
-    return HttpResponse("Hello, world. You are at the index")
-def inventory(request, playername):
-    user = User.objects.get(username=playername)
-    player = Player.objects.get(user=user)
-    items = ItemInstance.objects.filter(owner=player)
-    abilities = AbilityInstance.objects.filter(owner=player)
-    goals = GoalInstance.objects.filter(owner=player)
-    attributes = AttributeInstance.objects.filter(owner=player)
-
-    #num_items = ItemInstance.objects.filter(owner=player).count()
-    item_list = ', '.join([str(i) for i in items])
-    ability_list = ', '.join([str(i) for i in abilities])
-    attribute_list = ', '.join([str(i) for i in attributes])
-    goal_list = ', '.join([str(i) for i in goals])
-
-    context = {'item_list':item_list, 'ability_list':ability_list, 'goal_list':goal_list, 'attribute_list':attribute_list}
-    return render(request, 'playerinterface/inventory.html', context)
-    #return HttpResponse(output)
-    #return HttpResponse("You are looking at %s " % poll_id)
-
-class inv(generic.ListView):
-    model = ItemInstance
-    template_name= 'playerinterface/inv.html'
-    def get_queryset(self):
-        #player = Player.objects.get(user=self.request.user)
-        return ItemInstance.objects.filter(owner=self.request.user)
-        #return ItemInstance.objects.all()
-
-def iteminstance(request, itemid):
-    item = ItemInstance.objects.filter(id=itemid)
-    #itype = item.itype
-    context = {'item':item, 'itemid':itemid}
-    return render(request, 'iteminstance.html', context)
-
-def itemused(request, itemid):
-    item = ItemInstance.objects.get(id=itemid)
-    parameters = item.get_requests()
-    if request.method == 'POST':
-        form = UseItemForm(request.POST, extra=parameters)
-        if form.is_valid():
-            #for (question, answer) in form.extra_answers():
-                #save_answer(request, question, answer)
-            message = item.use(form.get_answers())
-            return HttpResponse(message)
-    else:
-        form = UseItemForm(extra = parameters)
-    return render(request, "form.html", {'form':form})
-
 
 
 def profile(request):
+    """
+    View for User Profile
+    """
     user = request.user
     items = ItemInstance.objects.filter(owner=user)
     abilities = AbilityInstance.objects.filter(owner=user)
@@ -64,3 +16,35 @@ def profile(request):
 
     context = {'items':items, 'abilities':abilities, 'attributes':attributes}
     return render(request, 'playerinterface/profile.html', context)
+
+def iteminstance(request, itemid):
+    """
+    View for a single item instance
+    """
+    item = ItemInstance.objects.get(id=itemid)
+    itype = item.get_itype()
+    description = itype.get_description()
+    name = itype.get_name()
+    context = {'name':name, 'description':description, 'itemid':itemid}
+    return render(request, 'iteminstance.html', context)
+
+def itemuse(request, itemid):
+    """
+    View for form for using an item
+    """
+    item = ItemInstance.objects.get(id=itemid)
+    requests = item.get_requests()
+
+    if request.method == 'POST':
+        form = AutoGenerateForm(request.POST, extra=requests)
+        if form.is_valid():
+            parameters = form.get_answers()
+            message = item.use(form.get_answers())
+            #Display the message you get at the end
+            return HttpResponse(message)
+    else:
+        form = AutoGenerateForm(extra = requests)
+    
+    #Render the form
+    context = {'form':form}
+    return render(request, "form.html", context)
