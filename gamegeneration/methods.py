@@ -150,3 +150,11 @@ class spiritsearch():
             'group':('Who participated in the ritual?', 'Usermult'),
             }
 
+############################# GM METHODS ##############################
+class GM():
+    @staticmethod
+    def clearvotes():
+        return "MEOW TEST"
+    @staticmethod
+    def test2():
+        return "hi"

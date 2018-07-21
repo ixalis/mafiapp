@@ -19,9 +19,10 @@
 	<li><a href= {% url 'abilityprofile' ability.id %}>{{ability}}</a></li>
 	{% endfor %}
 </ul>
-<h1> GM ABILITY LIST <h1>
+<h1> GM ABILITY LIST </h1>
 <ul>
 	{% for ability in gmactions %}
-	<li><a href= {% url 'gmaction' ability %}>{{ability}}</a></li>
+	<li><a href={% url 'GMAbility' ability %}>{{ability}}</a></li>
+	{% endfor %}
 </ul>
 {% endblock %}

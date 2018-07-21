@@ -10,5 +10,6 @@ urlpatterns = [
     url(r'^item/generate/(?P<itemid>\w+)/$', views.generateitem, name='generateitem'),
     url(r'^history/$', views.history, name='history'),
     url(r'^playerinbox/(?P<playername>\w+)/$', views.playerinbox, name='playerinbox'),
+    url(r'^GMAbility/(?P<abilityname>\w+)$', views.GMAbility, name='GMAbility')
 
 ]

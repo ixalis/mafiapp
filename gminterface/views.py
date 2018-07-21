@@ -4,10 +4,14 @@ from django.http import HttpResponse
 from forms import *
 
 def index(request):
+    import gamegeneration.methods as methods2
     players = User.objects.all()
     items = Item.objects.all()
     abilities = Ability.objects.all()
-    context = {'players':players, 'items':items, 'abilities':abilities}
+    gmactions = dir(methods2.GM)
+    gmactions.remove('__doc__')
+    gmactions.remove('__module__')
+    context = {'players':players, 'items':items, 'abilities':abilities, 'gmactions':gmactions}
     return render(request, 'gminterface/index.html', context)
     #return HttpResponse("Hello, world. You are at the index")
 
@@ -68,3 +72,10 @@ def playerinbox(request, playername):
     messages = Message.objects.filter(addressee=user)
     context = {'messages':messages}
     return render(request, "playerinterface/inbox.html",context)
+
+def GMAbility(request, abilityname):
+    import gamegeneration.methods as methods1
+    e = getattr(methods1.GM, abilityname)
+    message = e()
+    context={'message':message}
+    return render(request, "gmmessage.html", context)
