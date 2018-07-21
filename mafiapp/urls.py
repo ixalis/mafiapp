@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^player/', include('playerinterface.urls')),
     url(r'^gm/', include('gminterface.urls')),
     url(r'^accounts/', include('django.contrib.auth.urls')),
-    url(r'^$', include('playerinterface.urls'))
+    url(r'^$', include('playerinterface.urls')),
+    url(r'^generate/', include('gamegeneration.urls')),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

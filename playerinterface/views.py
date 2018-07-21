@@ -32,8 +32,8 @@ def itemuse(request, itemid):
         form = AutoGenerateForm(request.POST, extra=requests)
         if form.is_valid():
             parameters = form.get_answers()
-            message = item.use(form.get_answers())
-            m = Message(addressee=request.user, content=message)
+            message = item.use(parameters)
+            m = Message(addressee=parameters['owner'], content=message)
             m.save()
             #Display the message you get at the end
             context = {"message":message}
@@ -56,8 +56,8 @@ def abilityactivate(request, abilityid):
         form = AutoGenerateForm(request.POST, extra=requests)
         if form.is_valid():
             parameters = form.get_answers()
-            message = ability.use(form.get_answers())
-            m = Message(addressee=request.user, content=message)
+            message = ability.use(parameters)
+            m = Message(addressee=parameters['owner'], content=message)
             m.save()
             #Display the message you get at the end
             context = {"message":message}
@@ -71,7 +71,7 @@ def abilityactivate(request, abilityid):
 
 def inbox(request):
     user = request.user
-    messages = Message.objects.filter(fromuser=user)
+    messages = Message.objects.filter(addressee=user)
     context = {'messages':messages}
     return render(request, "playerinterface/inbox.html", context)
 

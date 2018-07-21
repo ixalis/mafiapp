@@ -3,5 +3,9 @@
 {% block content %}
 <h1> {{ability}} </h1>
 {{ability.description}}
+<br>
+<br>
+<br>
+<a href="{% 'generateability' ability.id %}">Generate Ability</a>
 
 {% endblock %}

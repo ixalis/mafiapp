@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import datetime
+#import methods
 
 ############# Abstract Game concepts ##############
 class Base(models.Model):
@@ -36,17 +37,21 @@ class Item(Base):
         Returns method defining use function for this item
         """
         import methods
-        methodname = 'use'+self.name.replace(" ", "").lower()
-        method = getattr(methods, methodname)
-        return method
+        try:
+            method = getattr(methods, self.name.replace(" ", "").lower()).use
+        except AttributeError:
+            method = getattr(methods, 'default').use
+            return method
     def get_usequestions(self):
         """
         Returns questions to be asked when using this ability, in the form
         {'field':(question, answertype), }
         """
         import methods
-        name = 'question'+self.name.replace(" ", "").lower()
-        questions = getattr(methods, name)
+        try:
+            questions = getattr(methods, self.name.replace(" ", "").lower()).questions
+        except AttributeError:
+            questions = getattr(methods, 'default').questions
         return questions
 
 
@@ -60,8 +65,10 @@ class Ability(Base):
         Returns method defining use function for this abliity
         """
         import methods
-        methodname = 'activate'+self.name.replace(" ", "").lower()
-        method = getattr(methods, methodname)
+        try:
+             method = getattr(methods, self.name.replace(" ", "").lower()).activate
+        except AttributeError:
+            method = getattr(methods, 'default').activate
         return method
     def get_usequestions(self):
         """
@@ -69,17 +76,23 @@ class Ability(Base):
         {'field':(question, answertype), }
         """
         import methods
-        name = 'question'+self.name.replace(" ", "").lower()
-        questions = getattr(methods, name)
+        try:
+            questions = getattr(methods, self.name.replace(" ","").lower()).questions
+        except AttributeError:
+            questions = getattr(methods, 'default').questions
         return questions
 
 class Attribute(Base):
     """
-    Defines Individual attributes/characteristics of Items, Abilities, or Users that can be quantified.
+    Defines Individual attributes/characteristics of Users that can be quantified.
     """
-    pass
+    atype = models.CharField(max_length=200, default="str")
+    default = models.CharField(max_length=200, default="str")
 
-
+    def get_atype(self):
+        return self.atype
+    def set_atype(self, v):
+        self.atype = v
 
 
 ############## Defining/Generating a Game #############
@@ -126,7 +139,6 @@ class Instance(models.Model):
         abstract = True
 
     owner = models.ForeignKey(User)
-    #game = models.ForeignKey(Game)
 
     def __str__(self):
         return '{0} ({1})'.format(self.owner, self.itype.name)
@@ -148,6 +160,7 @@ class ActionInstance(Instance):
         abstract = True
     def use(self, parameters=None):
         parameters['owner'] = self.get_owner()
+        parameters['itype']= self.get_itype()
         method_to_call = self.itype.get_usemethod()
         if parameters:
             result = method_to_call(parameters)
@@ -177,7 +190,7 @@ class AttributeInstance(Instance):
     An instance of an attribute
     """
     itype = models.ForeignKey(Attribute)
-    value = models.IntegerField(default = 0)
+    value = models.CharField(max_length=1000, default = '0')
 
 class Message(models.Model):
     """

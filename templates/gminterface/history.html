@@ -1,0 +1,9 @@
+{% extends 'base_generic.html' %}
+{% block content %}
+<h1> Inbox </h1>
+<ul>
+	{% for message in messages %}
+	<li> {{message.addressee}} - {{message}}</li>
+	{% endfor %}
+</ul>
+{% endblock %}

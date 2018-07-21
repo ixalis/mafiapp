@@ -17,7 +17,7 @@ def playerprofile(request, playername):
     items = ItemInstance.objects.filter(owner=player)
     abilities = AbilityInstance.objects.filter(owner=player)
     context = {'player':player, 'items':items, 'abilities':abilities, 'attributes':attributes}
-    return render(request, 'playerinterface/profile.html', context)
+    return render(request, 'gminterface/profile.html', context)
 
 def itemprofile(request, itemid):
     item = Item.objects.get(id=itemid)
@@ -42,6 +42,29 @@ def generateitem(request, itemid):
             form.save()
             #Get answers
     else:
-       form = ItemInstanceForm()
+        form = ItemInstanceForm(initial={'itype':item})
     context = {'form':form, 'main':item}
     return render(request, 'form.html', context)
+
+def generateability(request, abilityid):
+    ability = Ability.objects.get(id=abilityid)
+    if request.method == 'POST':
+        form = AbilityInstanceForm(request.POST)
+        if form.is_valid():
+            form.save()
+            #Get answers
+    else:
+        form = AbilityInstanceForm(initial={'itype':ability})
+    context = {'form':form, 'main':ability}
+    return render(request, 'form.html', context)
+
+def history(request):
+    messages = Message.objects.all()
+    context = {'messages':messages}
+    return render(request, "gminterface/history.html", context)
+
+def playerinbox(request, playername):
+    user = User.objects.get(username=playername)
+    messages = Message.objects.filter(addressee=user)
+    context = {'messages':messages}
+    return render(request, "playerinterface/inbox.html",context)

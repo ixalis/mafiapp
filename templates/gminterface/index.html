@@ -1,5 +1,5 @@
 {% extends "base_generic.html" %}
-
+<h1> <a href= {%url 'history' %}>Game History</a></h1>
 {% block content %}
 <h1> Player List </h1>
 <ul>
@@ -19,5 +19,9 @@
 	<li><a href= {% url 'abilityprofile' ability.id %}>{{ability}}</a></li>
 	{% endfor %}
 </ul>
-
+<h1> GM ABILITY LIST <h1>
+<ul>
+	{% for ability in gmactions %}
+	<li><a href= {% url 'gmaction' ability %}>{{ability}}</a></li>
+</ul>
 {% endblock %}

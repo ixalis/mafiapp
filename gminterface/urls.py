@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^ability/(?P<abilityid>\w+)/$', views.abilityprofile, name='abilityprofile'),
     url(r'^attribute/(?P<attributeid>\w+)/$', views.attributeprofile, name='attributeprofile'),
     url(r'^item/generate/(?P<itemid>\w+)/$', views.generateitem, name='generateitem'),
-
+    url(r'^history/$', views.history, name='history'),
+    url(r'^playerinbox/(?P<playername>\w+)/$', views.playerinbox, name='playerinbox'),
 
 ]

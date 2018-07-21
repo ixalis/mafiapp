@@ -2,60 +2,151 @@
 from gamegeneration.models import *
 import random
 
-#################### ITEM AND ABILITY FORMS #########################3#
-questiontaser = {
-        'target': ('Who is the target?', 'User'),
+################################ DJANGO INTERACTION METHODS ###############################
+def get_attt(attribute, username):
+    user = User.objects.get(username=username)
+    att = Attribute.objects.get(name=attribute)
+    atti = AttributeInstance.objects.filter(itype=att).get(owner=user)
+    return getattr(atti, 'value')
+
+def set_att(attribute, username, value):
+    user = User.objects.get(username=username)
+    att = Attribute.objects.get(name=attribute)
+    atti = AttributeInstance.objects.filter(itype=att).get(owner=user)
+    setattr(atti, 'value', value)
+    atti.save()
+
+def make_att(name, atype='str', default='0', description='No description'):
+    if Attribute.objects.filter(name=name).count() == 0:
+        att = Attribute(name=name, atype=atype, default=default, description=description);
+        att.save()
+        for user in User.objects.all():
+            atti = AttributeInstance(itype=att, owner=user, value=att.default)
+            atti.save()
+
+def make_item(itype, owner):
+    item = ItemInstance(itype=Item.objects.get(name=itype), owner=User.objects.get(name=owner))
+    item.save()
+
+def make_itemtype(name, description='No description'):
+    if Item.objects.filter(name=name).count() == 0:
+        item = Item(name=name, description=description)
+        item.save()
+
+######################################### HELPER METHODS #########################################
+class default():
+    questions = {}
+    description = ""
+    @staticmethod
+    def use(parameters):
+        return "You have used the item " + str(parameters['itype']) + ". GMs have been notified."
+    def activate(parameters):
+        return "You have used the ability " + str(parameters['itype']) + ". GMs have been notified."
+
+def is_guilty(target, death):
+    att = Attribute.objects.get(name=target+'Guilty')
+    atti = AttributeInstance.objects.filter(itype=att).get(owner=target)
+    return getattr(atti, 'value')
+
+
+########################################## ABILITIES #############################################
+class kill():
+    questions = {
+            'target':('Who did you kill?', 'User'),
+            'time':('When did you kill them?', 'time'),
+            'place':('Where did this murder take place?', 'str'),
+            }
+
+    @staticmethod
+    def activate(parameters):
+        set_att('Alive', parameters['target'], 'False')
+        make_att(str(parameters['target'])+'Guilty', atype='boolean', default='False')
+        set_att(str(parameters['target'])+'Guilty',parameters['owner'], 'True')
+
+        return "You have killed "+str(parameters['target'])+" at "+parameters['time']+" at "+parameters['place']+'.'
+
+class lynchvote():
+    questions = {
+            'target':('Who do you want to lynch?', 'User')
+            }
+    @staticmethod
+    def activate(parameters):
+        set_att('Voted for', parameters['owner'], str(parameters['target']))
+        return "You have voted for "+str(parameters['target'])+"."
+
+class pickpocket():
+    questions = {
+        'target': ('Who did you pickpocket?', 'User')
+        } 
+
+class pairinvestigation():
+    questions = {
+        'targetdeath': ('Whose death are you investigating?'),
+        'target1': ('Who are you investigating?', 'User'),
+        'target2': ('Who are you investigating?', 'User'),
         }
-questionlynchvote = {
-        'target': ("Who are you voting for?", 'User'),
-        }
-questioncoin = {
-        'action': ('Flip or Convert', 'Option'),
-        'amount': ('How many?', 'int'),
-        }
-questionkill = {
-        'target': ('Who did you kill?', 'User'),
-        'time': ('When did this happen?', 'time'),
-        'place': ('Where did you kill them', 'str'),
+
+class trap():
+    questions = {
+        'target': ('Who are you trapping?', 'User'),
+        'role': ('As what?', 'str'),
         }
 
+class admire():
+    questions = {
+        'target': ('Who are you admiring?', 'User'),
+        }
 
-######################## ITEM AND ABILITY METHODS ########################
-def usetaser(parameters):
-    target = parameters['target']
-    message = 'You have tased ' + target + '. They can not kill you for the next 15 minutes, and are roleblocked for today.'
-    return message
+class roleblock(): 
+    questions = {
+        'target': ('Who are you roleblocking?', 'User'),
+        }
 
-def activatelynchvote(parameters):
-    target = User.objects.get(username=parameters['target'])
-    owner = User.objects.get(username=parameters['owner'])
-    att = Attribute.objects.get(name='Voted for')
-    attribute = AttributeInstance.objects.filter(itype=att).get(owner=owner)
-    setattr(attribute, 'value', target.id)
-    attribute.save()
-    message = "You voted! You are a true patriot."
-    return message
+########################################### ITEMS ################################################
+class coin():
+    questions = {
+        'action':('Flip or convert?', 'str'),
+        'amount':('How many?', 'int'),
+        }
+    @staticmethod
+    def use(parameters):
+        action = parameters['action']
+        amount = parameters['amount']
+        answer = ""
+        if action.lower() == 'flip':
+            for i in range(int(amount)):
+                r = random.randint(0,1)
+                if r==0:
+                    answer = answer+'H'
+                else:
+                    answer = answer +'T'
+        if action.lower()=='convert':
+            answer = 'Contact a gm'
+        return answer
 
-def usecoin(parameters):
-    action = parameters['action']
-    amount = parameters['amount']
-    answer = ""
-    if action.lower() == 'flip':
-        for i in range(int(amount)):
-            r = random.randint(0,1)
-            if r==0:
-                answer = answer+'H'
-            else:
-                answer = answer +'T'
-    return answer
+class taser():
+    questions = {
+            'target':('Who have you tased?', 'User'),
+            }
 
-def activatekill(parameters):
-    target = User.objects.get(username=parameters['target'])
-    owner = User.objects.get(username=parameters['owner'])
-    admin = User.objects.get(username='admin')
-    att = Attribute.objects.get(name='Alive')
-    attribute = AttributeInstance.objects.filter(itype=att).get(owner=target)
-    setattr(attribute, 'value', 1)
-    attribute.save()
-    messagetext = "You killed " + target.username + " at " + parameters['time'] + ' in ' + parameters['place'] + '.'
-    return messagetext
+class honeyjar():
+    questions = {
+            'target':('Who have you splashed?', 'User'),
+            }
+
+class mafiacounter():
+    questions = {
+            'action':('Sign or Use?', 'str'),
+            }
+    
+class shovel():
+    questions = {
+            'target':('Who are you shoveling?', 'str'),
+            }
+    
+class spiritsearch():
+    questions = {
+            'death':('Whose death are you investigating?', 'str'),
+            'group':('Who participated in the ritual?', 'Usermult'),
+            }
+
