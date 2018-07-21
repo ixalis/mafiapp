@@ -1,11 +1,10 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-<h1> {{ability}} </h1>
+<h1> {{ability.name}} </h1>
 {{ability.description}}
 <br>
 <br>
-<br>
-<a href="{% 'generateability' ability.id %}">Generate Ability</a>
+<a href="{% url 'generateability' ability.id %}">Generate Ability</a>
 
 {% endblock %}

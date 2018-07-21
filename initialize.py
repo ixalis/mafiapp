@@ -8,7 +8,6 @@ def initializebase():
         Item(name='Mint', description='Generate some not-games.'),
         Item(name='Coin', description='Um, What?'),
         Item(name='Taser', description='Defend thyself, or something.'),
-        Item(name='Taser Handle', description='You have already done all you can'),
         Item(name='Flower', description='Proof of your lesbianism.'),
         Item(name='Honey Jar', description='BEEEEEEEEEEEEEEEEEEEES'),
         Item(name='Mafia Counter', description='With enough signatures, can be used to count the living mafia'),

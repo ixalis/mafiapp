@@ -88,12 +88,12 @@ class Attribute(Base):
     """
     atype = models.CharField(max_length=200, default="str")
     default = models.CharField(max_length=200, default="str")
-
+    alwaysvisible = models.BooleanField(max_length=200, default=False)
+    nondefaultvisible = models.BooleanField(max_length=200, default=True)
     def get_atype(self):
         return self.atype
     def set_atype(self, v):
         self.atype = v
-
 
 ############## Defining/Generating a Game #############
 class Game(models.Model):

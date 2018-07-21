@@ -22,7 +22,15 @@ def profile(request):
     user = request.user
     items = ItemInstance.objects.filter(owner=user)
     abilities = AbilityInstance.objects.filter(owner=user)
-    attributes = AttributeInstance.objects.filter(owner=user)
+    attributes = []
+    attributesme = AttributeInstance.objects.filter(owner=user)
+    for itype in Attribute.objects.all():
+        if itype.alwaysvisible:
+            attributes.append(attributesme.get(itype=itype))
+        elif itype.nondefaultvisible:
+            attribute = attributesme.get(itype=itype)
+            if itype.default != attribute.value:
+                attributes.append(attribute)
     context = {'user':user, 'player':user, 'items':items, 'abilities':abilities, 'attributes':attributes}
     return render(request, 'playerinterface/profile.html', context)
 
