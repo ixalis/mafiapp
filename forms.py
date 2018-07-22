@@ -1,5 +1,6 @@
 from django import forms
 from gamegeneration.models import *
+from django.contrib.auth.forms import UserCreationForm
 
 class AutoGenerateForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -45,3 +46,10 @@ class AbilityInstanceForm(forms.ModelForm):
 class AttributeInstanceForm(forms.ModelForm):
     class Meta:
         model = AttributeInstance
+
+class SignUpForm(UserCreationForm):
+    email = forms.EmailField(required=False, max_length=254, help_text='Enter a valid email address if you want email notifications')
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password1', 'password2', )

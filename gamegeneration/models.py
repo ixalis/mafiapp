@@ -238,8 +238,11 @@ class Message(models.Model):
         return self.deliverytime
     def save(self, *args, **kwargs):
         if not self.pk:
-            email = EmailMessage('New Mafia Occurrence', self.content, to=['mafiapp31415@gmail.com'])
-            email.send()
+            e = EmailMessage('New Mafia Occurrence', self.content, to=['mafiapp31415@gmail.com'])
+            e.send()
+            if addressee.email:
+                e2 = EmailMessage('New Mafia Occurrence', self.content, to=[addressee.email])
+                e2.send()
         super(Message, self).save(*args, **kwargs)
 
 class RandomInfo(models.Model):

@@ -318,7 +318,6 @@ class GM():
                 answer = answer+user.username+': '+str(count)+'<br>'
         return answer
     @staticmethod
-    def clearRBTase():
-        clearattribute('Roleblocked')
-        clearattribute('Tased')
+    def dayRollover():
         return 'All done!'
+
