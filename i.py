@@ -36,7 +36,7 @@ def initializeVanilla():
         Attribute(name='Alignment', description="I'm not mafia, you are!", atype='str', default='Town', alwaysvisible='True'),
         Attribute(name='Role', description='You had one job.', atype='str', default='Vanilla', alwaysvisible='True'),
 
-        Attribute(name='Roleblockee', description="Hope they didn't have any plans", default='None')
+        Attribute(name='Roleblockee', description="Hope they didn't have any plans", default='None'),
         Attribute(name='Admiring', description="That sweet-talker", atype='User', default='None'),
         Attribute(name='Priest Sets', description="Bless you", atype='str', default='None'),
         Attribute(name='Trapped', description="someone knows your secret", default='None'),
