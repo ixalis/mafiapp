@@ -241,7 +241,7 @@ class Message(models.Model):
         if not self.pk:
             e = EmailMessage('New Mafia Occurrence', self.content, to=['mafiapp31415@gmail.com'])
             e.send()
-            if addressee.email:
+            if self.addressee.email:
                 e2 = EmailMessage('New Mafia Occurrence', self.content, to=[self.addressee.email])
                 e2.send()
         super(Message, self).save(*args, **kwargs)
