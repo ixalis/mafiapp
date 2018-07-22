@@ -204,6 +204,7 @@ class ItemInstance(ActionInstance):
     
     def transfer(self, newowner):
         self.owner = newowner
+        return "You have successfully transfered the item "+self.itype.name
 
 class AbilityInstance(ActionInstance):
     """

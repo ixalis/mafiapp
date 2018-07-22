@@ -79,6 +79,10 @@ def list_to_string(l):
 def count_mafia():
     a = Attribute.objects.get(name='Alignment')
     return AttributeInstance.filter(itype=a).filter(value='Mafia').count()
+def genability(name, user):
+    a = Ability.objects.get(name=name)
+    ai = AbilityInstance(itype=a, owner=user)
+    ai.save()
 
 
 ########################################## ABILITIES #############################################
@@ -94,6 +98,7 @@ class kill():
         set_att('Dead', parameters['target'], 'True')
         make_att(str(parameters['target'])+'Guilty', atype='boolean', default='False')
         set_att(str(parameters['target'])+'Guilty',parameters['owner'], 'True')
+        parameters['self'].delete()
         return "You have killed "+str(parameters['target'])+" at "+parameters['time']+" at "+parameters['place']+'.'
 
 class lynchvote():
@@ -115,6 +120,7 @@ class pickpocket():
         loot = random.choice(inventory)
         setattr(loot,'owner', parameters['owner'])
         loot.save()
+        parameters['self'].delete()
         return "You have pickpocketed "+str(parameters['target'])+" and recieved the item "+ str(loot.itype.name)+"."
 
 class pairinvestigation():
@@ -143,21 +149,8 @@ class pairinvestigation():
                 result = random.choice([target1, target2])
             ri = RandomInfo(name=name,content=str(result))
             ri.save()
+        parameters['self'].delete()
         return "You have investigated "+str(target1)+ " and "+str(target2)+". and and heard about"+str(result)+ " as a possible suspect."
-
-class trap():
-    questions = {
-        'target': ('Who are you trapping?', 'User'),
-        'role': ('As what?', 'str'),
-        }
-    @staticmethod
-    def activate(parameters):
-        arole = get_att('Role', parameters['target'])
-        splashed = get_att('Splashed', parameters['target'])
-        if parameters['role'] == arole or splashed == 'True':
-            set_att('Trapped', parameters['target'], 'True')
-            return 'Your Trap has succeeded!'
-        return 'Your Trap has failed. Sorry!'
 
 class admire():
     questions = {
@@ -177,11 +170,13 @@ class roleblock():
     def activate(parameters):
         set_att('Roleblocking', parameters['owner'], parameters['target'])
         set_att('Roleblocked', parameters['target'], 'True')
+        parameters['self'].delete()
         return 'You have successfully roleblocked them!'
+
 class priestset():
     questions = {
             'set1':('Who is in your first set?', 'UserMult'),
-            'set2':('Who is in your second set?'. 'UserMult'),
+            'set2':('Who is in your second set?', 'UserMult'),
             }
     @staticmethod
     def activate(parameters):
@@ -196,7 +191,7 @@ class priestset():
 
 class setinvestigation():
     questions = {
-            'sett':('Who do you want to investigate?', 'UserMult')
+            'sett':('Who do you want to investigate?', 'UserMult'),
             'death':('Whose death are you investigating?', 'User')
             }
     @staticmethod
@@ -206,6 +201,7 @@ class setinvestigation():
         for u in parameters['sett']:
             if is_guilty(u, death):
                 result = True
+        parameters['self'].delete()
         if result:
             return "Someone is guilty!"
         else:
@@ -221,7 +217,8 @@ class vigilantekill():
     def activate(parameters):
         kill.activate(parameters)
         alignment = AttributeInstance.filter(name='Alignment').get(owner=parameters['target']).value
-        result = "You have killed "+target+' at '+time+' and 'place+' and learned that your target was '+alignment+'.'
+        result = "You have killed "+parameters['target']+' at '+parameters['time']+' and '+parameters['place']+' and learned that your target was '+alignment+'.'
+        parameters['self'].delete()
         if alignment=='Town':
             return result+"You will die at the end of the day."
         else:
@@ -235,6 +232,7 @@ class planeswalk():
         if parameters['choice']=='Gain 2 points':
             n = get_att('Planeswalker points', parameters['owner'])
             set_att('Planeswalker points', parameters['owner'], str(int(n)+2))
+            parameters['self'].delete()
             return "You have successfully gained 2 planeswalker points!"
         elif parameters['choice']=='Spend N points to get another role':
             return "Contact GMs please"
@@ -245,11 +243,6 @@ class planeswalk():
 ########################################### ITEMS ################################################
 class coin():
     questions = {
-    questions = {
-            'target':('Who did you kill?', 'User'),
-            'time':('When did you kill them?', 'time'),
-            'place':('Where did this murder take place?', 'str'),
-            }
         'amount':('How many flips?', 'int'),
         }
     @staticmethod
@@ -379,6 +372,21 @@ class spiritsearch():
         setattr(tracker, 'content', tracker.content+'I')
         return "You have used a Spirit Search on"+parameters['death']+"'s death. Someone in your group has learned something. Check everyone's messages!"
 
+class trap():
+    questions = {
+        'target': ('Who are you trapping?', 'User'),
+        'role': ('As what?', 'str'),
+        }
+    @staticmethod
+    def use(parameters):
+        arole = get_att('Role', parameters['target'])
+        splashed = get_att('Splashed', parameters['target'])
+        if parameters['role'] == arole or splashed == 'True':
+            set_att('Trapped', parameters['target'], 'True')
+            return 'Your Trap has succeeded!'
+        return 'Your Trap has failed. Sorry!'
+
+
 
 ############################# GM METHODS ##############################
 class GM():
@@ -397,7 +405,52 @@ class GM():
             if count > 0:
                 answer = answer+user.username+': '+str(count)+'<br>'
         return answer
+    
+    @staticmethod
+    def clear1DayAbilities():
+        pi = Ability.objects.filter(name='Pair Investigation')
+        kill = Ability.objects.filter(name='Kill')
+        pick = Ability.objects.filter(name='Pickpocket')
+        rb = Ability.objects.filter(name='Roleblock')
+        si = Ability.objects.filter(name='Set Investigation')
+
+        for o in pi:
+            o.delete()
+        for o in kill:
+            o.delete()
+        for o in pick:
+            o.delete()
+        for o in rb:
+            o.delete()
+        for o in si:
+            o.delete()
+        return 'All Cleared!'
+
+    @staticmethod
+    def generateAbilities():
+        rolers = []
+        for i in AttributeInstance.objects.filter(name='Role'):
+            rolers.append((i.owner, i.value))
+        atters = []
+        for i in AttributeInstance.objects.filter(name='Attribute'):
+            atters.append((i.owner, i.value))
+        for u in rolers:
+            if u[1]=='Roleblocker':
+                genability('Roleblock', u[0])
+            elif u[1]=='Pickpocket':
+                genability('Pickpocket', u[0])
+            elif u[1]=='Pair Investigator':
+                genability('Pair Investigation', u[0])
+        for u in atters:
+            if u[1]=='Mafia':
+                genability('Kill', u[0])
+        return 'Generated'
+
     @staticmethod
     def dayRollover():
-        return 'All done!'
+        GM.countvotes()
+        votes = GM.clearvotes
+        GM.clear1DayAbilities()
+        GM.generateAbilities()
+        return votes
 

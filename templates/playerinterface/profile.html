@@ -39,6 +39,7 @@
 	<tr> 
 		<th><a href="{% url 'itemuse' item.id %}">{{item.itype}}</a></th>
 		<th>{{item.itype.description}}</th>
+		<th><form action="{% url 'itemtransfer' item.id %}"><input type="submit" value="Transfer" /> </form> </th>
 	</tr>
       	{% endfor %}
    	

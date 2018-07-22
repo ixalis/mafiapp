@@ -70,6 +70,34 @@ def itemuse(request, itemid):
     context = {'form':form, 'main':item.get_itype().get_name(), 'instruction':item.get_usetext()}
     return render(request, "form.html", context)
 
+def itemtransfer(request, itemid):
+    """
+    View form for transfering an item
+    """
+    item = ItemInstance.objects.get(id=itemid)
+    if item.get_owner() != request.user and not is_gm(request.user):
+        return redirect('profile')
+
+    requests = item.get_requests()
+    if request.method == 'POST':
+        form = ItemTransferForm(request.POST)
+        if form.is_valid():
+            owner = form.get_answer()
+            message = item.transfer(owner)
+            item.save()
+            m = Message(addressee=owner, content=message)
+            #Display the message you get at the end
+            context = {"message":message}
+            return render(request, 'gmmessage.html', context)
+    else:
+        form = ItemTransferForm()
+    
+    #Render the form
+    context = {'form':form, 'main':item.get_itype().get_name()}
+    return render(request, "form.html", context)
+
+
+
 @login_required
 def abilityactivate(request, abilityid):
     """

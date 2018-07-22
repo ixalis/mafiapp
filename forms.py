@@ -53,3 +53,7 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2', )
+class ItemTransferForm(forms.Form):
+    newowner = forms.ModelChoiceField(label="Who do you want to transfer it to?", queryset=User.objects.all())
+    def get_answer(self):
+        return self.cleaned_data['newowner']
