@@ -126,16 +126,23 @@ class pairinvestigation():
     @staticmethod
     def activate(parameters):
         target1, target2, targetdeath = parameters['target1'], parameters['target2'], parameters['targetdeath']
-        guilty1 = is_guilty(target1, targetdeath)
-        guilty2 = is_guilty(target2, targetdeath)
-        if guilty1 and guilty2:
-            result = random.choice([target1, target2])
-        elif guilty1:
-            result = target1
-        elif guilty2:
-            result = target2
-        else:
-            result = random.choice([target1, target2])
+        name = str(target1)+','+str(target2)+','+str(targetdeath)
+        try:
+            ri = RandomInfo.objects.get(name = name)
+            result = ri.content
+        except:
+            guilty1 = is_guilty(target1, targetdeath)
+            guilty2 = is_guilty(target2, targetdeath)
+            if guilty1 and guilty2:
+                result = random.choice([target1, target2])
+            elif guilty1:
+                result = target1
+            elif guilty2:
+                result = target2
+            else:
+                result = random.choice([target1, target2])
+            ri = RandomInfo(name=name,content=str(result))
+            ri.save()
         return "You have investigated "+str(target1)+ " and "+str(target2)+". and and heard about"+str(result)+ " as a possible suspect."
 
 class trap():
@@ -148,16 +155,19 @@ class trap():
         arole = get_att('Role', parameters['target'])
         splashed = get_att('Splashed', parameters['target'])
         if parameters['role'] == arole or splashed == 'True':
-            set_att('Roleblocked', parameters['target'], 'True')
+            set_att('Trapped', parameters['target'], 'True')
             return 'Your Trap has succeeded!'
         return 'Your Trap has failed. Sorry!'
-"""
-Day Abilities; To implement
-"""
+
 class admire():
     questions = {
         'target': ('Who are you admiring?', 'User'),
         }
+    @staticmethod
+    def activate(parameters):
+        set_att('Admiring', parameters['owner'], parameters['target'])
+        return 'You successfully admired them!'
+
 
 class roleblock(): 
     questions = {
@@ -165,11 +175,81 @@ class roleblock():
         }
     @staticmethod
     def activate(parameters):
+        set_att('Roleblocking', parameters['owner'], parameters['target'])
         set_att('Roleblocked', parameters['target'], 'True')
+        return 'You have successfully roleblocked them!'
+class priestset():
+    questions = {
+            'set1':('Who is in your first set?', 'UserMult'),
+            'set2':('Who is in your second set?'. 'UserMult'),
+            }
+    @staticmethod
+    def activate(parameters):
+        set1, set2 = "", ""
+        for u in parameters['set1']:
+            set1 = set1+str(u)+','
+        for u in parameters['set2']:
+            set1 = set1+str(u)+','
+        sett = set1[:-1]+'|'+set1[:-1]
+        set_att('Priest Sets', parameters['owner'], sett)
+        return 'You have successfully priested ' + sett.replace("|", " and ")
+
+class setinvestigation():
+    questions = {
+            'sett':('Who do you want to investigate?', 'UserMult')
+            'death':('Whose death are you investigating?', 'User')
+            }
+    @staticmethod
+    def activate(parameters):
+        result = False
+        death = parameters['death']
+        for u in parameters['sett']:
+            if is_guilty(u, death):
+                result = True
+        if result:
+            return "Someone is guilty!"
+        else:
+            return "No one is guilty..."
+
+class vigilantekill():
+    questions = {
+            'target':('Who did you kill?', 'User'),
+            'time':('When did you kill them?', 'time'),
+            'place':('Where did this murder take place?', 'str'),
+            }
+    @staticmethod
+    def activate(parameters):
+        kill.activate(parameters)
+        alignment = AttributeInstance.filter(name='Alignment').get(owner=parameters['target']).value
+        result = "You have killed "+target+' at '+time+' and 'place+' and learned that your target was '+alignment+'.'
+        if alignment=='Town':
+            return result+"You will die at the end of the day."
+        else:
+            return result
+class planeswalk():
+    questions = {
+            'choice':('Pick what you want to do', ('Gain 2 points', 'Spend N points to get another role', 'Spend 7 points to use Vigilante Role'))
+            }
+    @staticmethod
+    def activate(parameters):
+        if parameters['choice']=='Gain 2 points':
+            n = get_att('Planeswalker points', parameters['owner'])
+            set_att('Planeswalker points', parameters['owner'], str(int(n)+2))
+            return "You have successfully gained 2 planeswalker points!"
+        elif parameters['choice']=='Spend N points to get another role':
+            return "Contact GMs please"
+        else:
+            return "Contact GMs please"
+
 
 ########################################### ITEMS ################################################
 class coin():
     questions = {
+    questions = {
+            'target':('Who did you kill?', 'User'),
+            'time':('When did you kill them?', 'time'),
+            'place':('Where did this murder take place?', 'str'),
+            }
         'amount':('How many flips?', 'int'),
         }
     @staticmethod

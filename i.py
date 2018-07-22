@@ -20,11 +20,14 @@ def initializeVanilla():
         Ability(name='Pair Investigation', description='Awww, jealousy is cute.'),
         Ability(name='Trap', description='i know your secrets.'),
         Ability(name='Pickpocket', description='butterfingers'),
-        Ability(name='Priest Sets', description='bless you'),
+        Ability(name='Priest Sets', description='bless them'),
         Ability(name='Admire', description='i <3 u 2'),
         Ability(name='Roleblock', description='You did not have any plans, right?'),
         Ability(name='Planeswalk', description='ooOOOHHHH..... what do zombies even sound like?'),
-        
+        Ability(name='Set Investigation', description="Those cards don't match!"),
+        Ability(name='Splitter Sets', description="Pick one already."),
+        Ability(name='Vigilante Kill', description="Prowling the streets"),
+
         Attribute(name='Voted for', description='Wow, you really hate them.', atype='str', default='None', alwaysvisible='True'),
         Attribute(name='Dead', description='You are still alive, darn.', atype='boolean', default='True'),
         Attribute(name='Roleblocked', description='Are you even useful anymore?', atype='boolean', default='False'),
@@ -32,6 +35,13 @@ def initializeVanilla():
         Attribute(name='Tased', description='bzzzzzzzzzz', atype='boolean', default='False'),
         Attribute(name='Alignment', description="I'm not mafia, you are!", atype='str', default='Town', alwaysvisible='True'),
         Attribute(name='Role', description='You had one job.', atype='str', default='Vanilla', alwaysvisible='True'),
+
+        Attribute(name='Roleblockee', description="Hope they didn't have any plans", default='None')
+        Attribute(name='Admiring', description="That sweet-talker", atype='User', default='None'),
+        Attribute(name='Priest Sets', description="Bless you", atype='str', default='None'),
+        Attribute(name='Trapped', description="someone knows your secret", default='None'),
+        Attribute(name='Planeswalker points', description="You've eaten some tasy brains", default='0'),
+
         ]
     for thing in base:
         thing.save()

@@ -29,11 +29,17 @@ def profile(request):
     attributesme = AttributeInstance.objects.filter(owner=user)
     for itype in Attribute.objects.all():
         if itype.alwaysvisible:
-            attributes.append(attributesme.get(itype=itype))
+            try:
+                attributes.append(attributesme.get(itype=itype))
+            except:
+                pass
         elif itype.nondefaultvisible:
-            attribute = attributesme.get(itype=itype)
-            if itype.default != attribute.value:
-                attributes.append(attribute)
+            try:
+                attribute = attributesme.get(itype=itype)
+                if itype.default != attribute.value:
+                    attributes.append(attribute)
+            except:
+                pass
     context = {'user':user, 'player':user, 'items':items, 'abilities':abilities, 'attributes':attributes}
     return render(request, 'playerinterface/profile.html', context)
 
