@@ -57,3 +57,4 @@ docs/_build/
 
 #Project Stuff
 mafiapp/settings.py
+db.sqlite3
