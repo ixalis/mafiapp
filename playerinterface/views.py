@@ -4,6 +4,8 @@ from django.http import HttpResponse
 from django.views import generic
 from forms import *
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login, authenticate
 
 def is_gm(user):
     return user.username=='admin'
@@ -96,6 +98,16 @@ def inbox(request):
     context = {'messages':messages}
     return render(request, "playerinterface/inbox.html", context)
 
-
-
-
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'signup.html', {'form': form})

@@ -7,5 +7,6 @@ urlpatterns = [
     url(r'^item/(?P<itemid>\w+)/$', views.itemuse, name='itemuse'),
     url(r'^ability/(?P<abilityid>\w+)/$', views.abilityactivate, name='abilityactivate'),
     url(r'^inbox/$', views.inbox, name='inbox'),
+    url(r'^signup/$', views.signup, name='signup'),
 ]
 

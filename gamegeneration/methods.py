@@ -115,7 +115,7 @@ class pickpocket():
         loot = random.choice(inventory)
         setattr(loot,'owner', parameters['owner'])
         loot.save()
-        return "You have pickpocketed "+str(parameters['target'])+" and recieved the item"+ str(loot)+"."
+        return "You have pickpocketed "+str(parameters['target'])+" and recieved the item "+ str(loot.itype.name)+"."
 
 class pairinvestigation():
     questions = {
@@ -143,7 +143,17 @@ class trap():
         'target': ('Who are you trapping?', 'User'),
         'role': ('As what?', 'str'),
         }
-
+    @staticmethod
+    def activate(parameters):
+        arole = get_att('Role', parameters['target'])
+        splashed = get_att('Splashed', parameters['target'])
+        if parameters['role'] == arole or splashed == 'True':
+            set_att('Roleblocked', parameters['target'], 'True')
+            return 'Your Trap has succeeded!'
+        return 'Your Trap has failed. Sorry!'
+"""
+Day Abilities; To implement
+"""
 class admire():
     questions = {
         'target': ('Who are you admiring?', 'User'),

@@ -44,7 +44,7 @@ def initializeplayers():
         User.objects.create_user(username='town4', password='password'),
         User.objects.create_user(username='town5', password='password'),
         User.objects.create_user(username='mafia1', password='password'),
-        USer.objects.create_user(username='mafia2', password='password')
+        User.objects.create_user(username='mafia2', password='password'),
         User.objects.create_user(username='mafiask', password='password'),
         ]
     for thing in players:
