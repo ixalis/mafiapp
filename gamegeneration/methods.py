@@ -6,7 +6,7 @@ import random
 def user(username):
     return User.objects.get(username=username)
 
-def get_attt(attribute, user):
+def get_att(attribute, user):
     att = Attribute.objects.get(name=attribute)
     atti = AttributeInstance.objects.filter(itype=att).get(owner=user)
     return getattr(atti, 'value')
@@ -197,7 +197,7 @@ class honeyjar():
             return 'You have attempted to splash '+parameters['target']+'and failed because they were already sticky.'
         set_att('Splashed', parameters['target'], 'True')
         parameters['self'].delete()
-        return 'You have splashed '+parameters['target']+' with a honey jar.'
+        return 'You have splashed '+str(parameters['target'])+' with a honey jar.'
 
 class mafiacounter():
     questions = {
@@ -270,14 +270,23 @@ class spiritsearch():
     def use(parameters):
         g = parameters['group']
         learner = random.choice(g)
-        response = 'not guilty'
-        #response=str(0)
-        for user in g:
-            if is_guilty(user, parameters['death']):
-                response = 'guilty'
-                #response = response+str(is_guilty(user, parameters['death']))
-        #response = str(response)
+
+        try:
+            tracker = RandomInfo.objects.get(name="SpiritSearch"+str(parameters['self'].id))
+        except:
+            tracker = RandomInfo(name="SpiritSearch"+str(parameters['self'].id), content="")
+            tracker.save()
+        number = len(tracker.content)
+        if number >= 2:
+            response = random.choice(['not guilty', 'guilty'])
+
+        else:
+            response = 'not guilty'
+            for user in g:
+                if is_guilty(user, parameters['death']):
+                    response = 'guilty'
         write_message('From the Spirit Search you just participated in, you have learned that someone in your party was '+response+" for "+parameters['death']+"'s death.", learner)
+        setattr(tracker, 'content', tracker.content+'I')
         return "You have used a Spirit Search on"+parameters['death']+"'s death. Someone in your group has learned something. Check everyone's messages!"
 
 
@@ -302,3 +311,4 @@ class GM():
     def clearRBTase():
         clearattribute('Roleblocked')
         clearattribute('Tased')
+        return 'All done!'

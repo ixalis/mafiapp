@@ -1,10 +1,10 @@
 from gamegeneration.models import *
 from django.contrib.auth.models import User
 def all():
-    initializebase()
+    initializeVanilla()
     initializeplayers()
-    initializeinstance()
-def initializebase():
+    initializexgame()
+def initializeVanilla():
     base = [
         Item(name='Mint', description='Generate some not-games.'),
         Item(name='Coin', description='Um, What?'),
@@ -14,6 +14,7 @@ def initializebase():
         Item(name='Mafia Counter', description='With enough signatures, can be used to count the living mafia'),
         Item(name='Shovel', description='Respect the dead!'),
         Item(name='Spirit Search', description='None of you are guilty, right? RIGHT?!'),
+
         Ability(name='Lynch Vote', description='Can you find the mafia?'),
         Ability(name='Kill', description='Congrats! You can kill someone.'),
         Ability(name='Pair Investigation', description='Awww, jealousy is cute.'),
@@ -31,35 +32,58 @@ def initializebase():
         Attribute(name='Tased', description='bzzzzzzzzzz', atype='boolean', default='False'),
         Attribute(name='Alignment', description="I'm not mafia, you are!", atype='str', default='Town', alwaysvisible='True'),
         Attribute(name='Role', description='You had one job.', atype='str', default='Vanilla', alwaysvisible='True'),
-
-        RandomInfo(name='Pairinvestigations', content=''),
-        RandomInfo(name='SpiritSearchInvestigations', content=''),
         ]
     for thing in base:
         thing.save()
 
 def initializeplayers():
     players = [
-        User.objects.create_user(username='player1', password='password'),
-        User.objects.create_user(username='player2', password='password'),
+        User.objects.create_user(username='town1', password='password'),
+        User.objects.create_user(username='town2', password='password'),
+        User.objects.create_user(username='town3', password='password'),
+        User.objects.create_user(username='town4', password='password'),
+        User.objects.create_user(username='town5', password='password'),
+        User.objects.create_user(username='mafia1', password='password'),
+        USer.objects.create_user(username='mafia2', password='password')
+        User.objects.create_user(username='mafiask', password='password'),
         ]
     for thing in players:
         thing.save()
 
-def initializeinstance():
+def initializexgame():
     instances = [
-        ItemInstance(itype=Item.objects.get(name='Coin'), owner=User.objects.get(username='player1')),
-        ItemInstance(itype=Item.objects.get(name='Taser'), owner=User.objects.get(username='player2')),
-        ItemInstance(itype=Item.objects.get(name='Honey Jar'), owner=User.objects.get(username='player1')),
-        AbilityInstance(itype=Ability.objects.get(name='Lynch Vote'), owner=User.objects.get(username='player1')),
-        AbilityInstance(itype=Ability.objects.get(name='Lynch Vote'), owner=User.objects.get(username='player2')),
-        AbilityInstance(itype=Ability.objects.get(name='Kill'), owner=User.objects.get(username='player1')),
+        ItemInstance(itype=Item.objects.get(name='Coin'), owner=User.objects.get(username='town1')),
+        ItemInstance(itype=Item.objects.get(name='Taser'), owner=User.objects.get(username='town2')),
+        ItemInstance(itype=Item.objects.get(name='Honey Jar'), owner=User.objects.get(username='mafia1')),
+        ItemInstance(itype=Item.objects.get(name='Coin'), owner=User.objects.get(username='town3')),
+        ItemInstance(itype=Item.objects.get(name='Spirit Search'), owner=User.objects.get(username='town3')),
+        ItemInstance(itype=Item.objects.get(name='Shovel'), owner=User.objects.get(username='town4')),
+        ItemInstance(itype=Item.objects.get(name='Flower'), owner=User.objects.get(username='town4')),
+        ItemInstance(itype=Item.objects.get(name='Flower'), owner=User.objects.get(username='mafia1')),
+        ItemInstance(itype=Item.objects.get(name='Mafia Counter'), owner=User.objects.get(username='mafia2')),
+        ItemInstance(itype=Item.objects.get(name='Taser'), owner=User.objects.get(username='mafiask')),
+
+        AbilityInstance(itype=Ability.objects.get(name='Kill'), owner=User.objects.get(username='mafia1')),
+        AbilityInstance(itype=Ability.objects.get(name='Kill'), owner=User.objects.get(username='mafia2')),
+        AbilityInstance(itype=Ability.objects.get(name='Kill'), owner=User.objects.get(username='mafiask')),
+        AbilityInstance(itype=Ability.objects.get(name='Pickpocket'), owner=User.objects.get(username='town1')),
+        AbilityInstance(itype=Ability.objects.get(name='Roleblock'), owner=User.objects.get(username='town2')),
+        AbilityInstance(itype=Ability.objects.get(name='Admire'), owner=User.objects.get(username='town3')),
+        AbilityInstance(itype=Ability.objects.get(name='Pair Investigation'), owner=User.objects.get(username='town4')),
+        AbilityInstance(itype=Ability.objects.get(name='Pickpocket'), owner=User.objects.get(username='town5')),
+        AbilityInstance(itype=Ability.objects.get(name='Roleblock'), owner=User.objects.get(username='mafia1')),
+        AbilityInstance(itype=Ability.objects.get(name='Priest Sets'), owner=User.objects.get(username='mafia2')),
+        AbilityInstance(itype=Ability.objects.get(name='Pickpocket'), owner=User.objects.get(username='mafiask')),
+
+
         ]
     for thing in instances:
         thing.save()
-    for att in Attribute.objects.all():
-        for user in User.objects.all():
+    for user in User.objects.all():
+        for att in Attribute.objects.all():
             atti = AttributeInstance(itype=att, owner=user, value=att.default)
             atti.save()
+        ai = AbilityInstance(itype=Ability.objects.get(name='Lynch Vote'), owner=user)
+        ai.save()
 if __name__=='__main__':
     all()
