@@ -16,6 +16,8 @@ class AutoGenerateForm(forms.Form):
                 self.fields[field] = forms.ModelChoiceField(queryset=Item.objects.all())
             elif ftype=='int':
                 self.fields[field] = forms.IntegerField()
+            elif ftype=='UserMult':
+                self.fields[field] = forms.ModelMultipleChoiceField(queryset=User.objects.all())
             else:
                 self.fields[field] = forms.CharField(label=extra[field][0])
 
@@ -34,3 +36,7 @@ class ItemInstanceForm(forms.ModelForm):
 class AbilityInstanceForm(forms.ModelForm):
     class Meta:
         model = AbilityInstance
+
+class AttributeInstanceForm(forms.ModelForm):
+    class Meta:
+        model = AttributeInstance

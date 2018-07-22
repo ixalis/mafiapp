@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from gamegeneration.models import *
 from django.http import HttpResponse
 from forms import *
@@ -54,12 +54,11 @@ def generateitem(request, itemid):
         form = ItemInstanceForm(request.POST)
         if form.is_valid():
             form.save()
-            #Get answers
+            return redirect('index')
     else:
         form = ItemInstanceForm(initial={'itype':item})
     context = {'form':form, 'main':item}
     return render(request, 'form.html', context)
-
 @user_passes_test(is_gm)
 def generateability(request, abilityid):
     ability = Ability.objects.get(id=abilityid)
@@ -67,10 +66,34 @@ def generateability(request, abilityid):
         form = AbilityInstanceForm(request.POST)
         if form.is_valid():
             form.save()
-            #Get answers
+            return redirect('index')
     else:
         form = AbilityInstanceForm(initial={'itype':ability})
     context = {'form':form, 'main':ability}
+    return render(request, 'form.html', context)
+
+@user_passes_test(is_gm)
+def deleteitem(request, itemid):
+    item = ItemInstance.objects.get(id=itemid)
+    item.delete()
+    return redirect('playerprofile', item.owner.username)
+@user_passes_test(is_gm)
+def deleteability(request, abilityid):
+    ability = Abilityinstance.objects.get(id=abilityid)
+    ability.delete()
+    return redirect('playerprofile', ability.owner.username)
+
+@user_passes_test(is_gm)
+def changeattribute(request, attid):
+    att = AttributeInstance.objects.get(id=attid)
+    if request.method == 'POST':
+        form = AttributeInstanceForm(request.POST, instance=att)
+        if form.is_valid():
+            form.save()
+            return redirect(att.owner.username)
+    else:
+        form = AttributeInstanceForm(instance=att)
+    context={'form':form, 'main':att}
     return render(request, 'form.html', context)
 
 @user_passes_test(is_gm)

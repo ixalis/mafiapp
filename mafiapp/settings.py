@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+PRODUCTION = TRUE
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -21,14 +22,22 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 #<<<<<<< HEAD
-SECRET_KEY = '2a@uetv1-jg+4tg1+dv+o-)s72+v_uh)-3b)a@%0x$xl(bnhb1'
+if not PRODUCTION:
+    SECRET_KEY = '$#2l!+mf(wyu=@vl=@771g!9%4vhg!mqd+^bs2i(^#v&8toe*('
 
+else:
+    import production_settings as p
+    SECRET_KEY = p.SECRET_KEY
+    EMAIL_BACKEND=p.EMAIL_BACKEND
+    EMAIL_USE_TLS= p.EMAIL_USE_TLS
+    EMAIL_HOST = p.EMAIL_HOST
+    EMAIL_HOST_USER = p.EMAIL_HOST_USER
+    EMAIL_HOST_PASSWORD = p.EMAIL_HOST_PASSWORD
+    EMAIL_PORT = EMAIL_PORT
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
-
+ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [

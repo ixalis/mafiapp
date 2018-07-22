@@ -8,6 +8,7 @@
 	<tr> 
 		<th>{{attribute.itype}}</th>
 		<th>{{attribute.value}}</th> 
+		<th> <form action="{% url 'changeattribute' attribute.id %}"><input type="submit" value="Change" /> </form> </th>
 	</tr>
       	{% endfor %}
 	</table>
@@ -21,6 +22,7 @@
 	<tr>
 		<th> <a href="{% url 'abilityactivate' ability.id %}"> {{ability.itype}} </a></th>
 		<th> {{ability.itype.description}}</th>
+		<th> <form action="{% url 'deleteability' ability.id %}"><input type="submit" value="Delete" /> </form> </th>
 	</tr>
       	{% endfor %}
 	</table>
@@ -39,6 +41,7 @@
 	<tr> 
 		<th><a href="{% url 'itemuse' item.id %}">{{item.itype}}</a></th>
 		<th>{{item.itype.description}}</th>
+		<th> <form action="{% url 'deleteitem' item.id %}"><input type="submit" value="Delete" /> </form> </th>
 	</tr>
       	{% endfor %}
    	

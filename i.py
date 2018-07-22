@@ -1,4 +1,5 @@
 from gamegeneration.models import *
+from django.contrib.auth.models import User
 def all():
     initializebase()
     initializeplayers()
@@ -23,18 +24,19 @@ def initializebase():
         Ability(name='Roleblock', description='You did not have any plans, right?'),
         Ability(name='Planeswalk', description='ooOOOHHHH..... what do zombies even sound like?'),
         
-        Attribute(name='Voted for', description='Wow, you really hate them.', atype='str', default='None'),
-        Attribute(name='Alive', description='You are still alive, darn.', atype='boolean', default='True'),
+        Attribute(name='Voted for', description='Wow, you really hate them.', atype='str', default='None', alwaysvisible='True'),
+        Attribute(name='Dead', description='You are still alive, darn.', atype='boolean', default='True'),
         Attribute(name='Roleblocked', description='Are you even useful anymore?', atype='boolean', default='False'),
         Attribute(name='Splashed', description='spooky', atype='boolean', default='False'),
+        Attribute(name='Alignment', description="I'm not mafia, you are!", atype='str', default='Town', alwaysvisible='True'),
         ]
     for thing in base:
         thing.save()
 
 def initializeplayers():
     players = [
-        User(username='player1', password='password'),
-        User(username='player2', password='password'),
+        User.objects.create_user(username='player1', password='password'),
+        User.objects.create_user(username='player2', password='password'),
         ]
     for thing in players:
         thing.save()

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import datetime
+from django.core.mail import EmailMessage
 #import methods
 
 ############# Abstract Game concepts ##############
@@ -41,7 +42,7 @@ class Item(Base):
             method = getattr(methods, self.name.replace(" ", "").lower()).use
         except AttributeError:
             method = getattr(methods, 'default').use
-            return method
+        return method
     def get_usequestions(self):
         """
         Returns questions to be asked when using this ability, in the form
@@ -146,8 +147,6 @@ class Instance(models.Model):
     #Get functions
     def get_owner(self):
         return self.owner
-    #def get_game(self):
-    #    return self.game
     def get_itype(self):
         return self.itype
 
@@ -178,6 +177,9 @@ class ItemInstance(ActionInstance):
     An instance of a single item
     """
     itype = models.ForeignKey(Item)
+    
+    def transfer(self, newowner):
+        self.owner = newowner
 
 class AbilityInstance(ActionInstance):
     """
@@ -210,4 +212,19 @@ class Message(models.Model):
         return self.content
     def get_time(self):
         return self.deliverytime
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            email = EmailMessage('New Mafia Occurrence', self.content, to=['mafiapp31415@gmail.com'])
+            email.send()
+        super(Message, self).save(*args, **kwargs)
+
+class RandomInfo(models.Model):
+    """
+    Storing random bits of information
+    """
+    name = models.CharField(max_length=50, default='Default')
+    content = models.CharField(max_length=9999, default='')
+
+    def __str__(self):
+        return self.content
 
