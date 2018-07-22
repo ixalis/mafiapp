@@ -1,6 +1,7 @@
 {% extends "base_generic.html" %}
 {% block content %}
 <h1> {{main}} </h1>
+{{instruction|default_if_none:""|safe}}
 <form method="POST" action-"."> 
 	{% csrf_token %}
 	<table>

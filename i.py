@@ -28,7 +28,12 @@ def initializebase():
         Attribute(name='Dead', description='You are still alive, darn.', atype='boolean', default='True'),
         Attribute(name='Roleblocked', description='Are you even useful anymore?', atype='boolean', default='False'),
         Attribute(name='Splashed', description='spooky', atype='boolean', default='False'),
+        Attribute(name='Tased', description='bzzzzzzzzzz', atype='boolean', default='False'),
         Attribute(name='Alignment', description="I'm not mafia, you are!", atype='str', default='Town', alwaysvisible='True'),
+        Attribute(name='Role', description='You had one job.', atype='str', default='Vanilla', alwaysvisible='True'),
+
+        RandomInfo(name='Pairinvestigations', content=''),
+        RandomInfo(name='SpiritSearchInvestigations', content=''),
         ]
     for thing in base:
         thing.save()

@@ -54,6 +54,17 @@ class Item(Base):
         except AttributeError:
             questions = getattr(methods, 'default').questions
         return questions
+    def get_usetext(self):
+        """
+        Returns description for Use Form
+        """
+        import methods
+        try:
+            description = getattr(methods, self.name.replace(" ","").lower()).description
+        except AttributeError:
+            description = getattr(methods, 'default').description
+        return description
+
 
 
 
@@ -82,6 +93,16 @@ class Ability(Base):
         except AttributeError:
             questions = getattr(methods, 'default').questions
         return questions
+    def get_usetext(self):
+        """
+        Return descripion for use form
+        """
+        import methods
+        try:
+            description = getattr(methods, self.name.replace(" ","").lower()).description
+        except AttributeError:
+            description = getattr(methods, 'default').description
+        return description
 
 class Attribute(Base):
     """
@@ -160,6 +181,7 @@ class ActionInstance(Instance):
     def use(self, parameters=None):
         parameters['owner'] = self.get_owner()
         parameters['itype']= self.get_itype()
+        parameters['self'] = self
         method_to_call = self.itype.get_usemethod()
         if parameters:
             result = method_to_call(parameters)
@@ -170,6 +192,8 @@ class ActionInstance(Instance):
     def get_requests(self):
         questions = self.itype.get_usequestions()
         return questions
+    def get_usetext(self):
+        return self.itype.get_usetext()
 
 
 class ItemInstance(ActionInstance):

@@ -60,7 +60,7 @@ def itemuse(request, itemid):
         form = AutoGenerateForm(extra = requests)
     
     #Render the form
-    context = {'form':form, 'main':item.get_itype().get_name()}
+    context = {'form':form, 'main':item.get_itype().get_name(), 'instruction':item.get_usetext()}
     return render(request, "form.html", context)
 
 @login_required
@@ -87,7 +87,7 @@ def abilityactivate(request, abilityid):
         form = AutoGenerateForm(extra = requests)
     
     #Render the form
-    context = {'form':form, 'main':ability.get_itype().get_name()}
+    context = {'form':form, 'main':ability.get_itype().get_name(), 'instruction':ability.get_usetext()}
     return render(request, "form.html", context)
 
 def inbox(request):

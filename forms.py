@@ -10,14 +10,19 @@ class AutoGenerateForm(forms.Form):
         #For every fieldname in requests, make a new field
         for i, field in enumerate(extra.keys()):
             ftype = extra[field][1]
-            if ftype=='User':
-                self.fields[field] = forms.ModelChoiceField(queryset=User.objects.all())
+            if type(ftype) is tuple:
+                choices = []
+                for c in ftype:
+                    choices.append((c, c))
+                self.fields[field] = forms.ChoiceField(label=extra[field][0], choices=choices)
+            elif ftype=='User':
+                self.fields[field] = forms.ModelChoiceField(label=extra[field][0], queryset=User.objects.all())
             elif ftype=='Item':
-                self.fields[field] = forms.ModelChoiceField(queryset=Item.objects.all())
+                self.fields[field] = forms.ModelChoiceField(label=extra[field][0], queryset=Item.objects.all())
             elif ftype=='int':
-                self.fields[field] = forms.IntegerField()
+                self.fields[field] = forms.IntegerField(label=extra[field][0])
             elif ftype=='UserMult':
-                self.fields[field] = forms.ModelMultipleChoiceField(queryset=User.objects.all())
+                self.fields[field] = forms.ModelMultipleChoiceField(label=extra[field][0],queryset=User.objects.all())
             else:
                 self.fields[field] = forms.CharField(label=extra[field][0])
 

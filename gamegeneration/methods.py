@@ -68,6 +68,18 @@ def clearattribute(name):
         setattr(att, 'value', a.default)
         att.save()
 
+def string_to_list(string):
+    return string.split(',')
+def list_to_string(l):
+    final = ""
+    for i in l:
+        final = final+i+","
+    return final[:-1]
+
+def count_mafia():
+    a = Attribute.objects.get(name='Alignment')
+    return AttributeInstance.filter(itype=a).filter(value='Mafia').count()
+
 
 ########################################## ABILITIES #############################################
 class kill():
@@ -148,24 +160,19 @@ class roleblock():
 ########################################### ITEMS ################################################
 class coin():
     questions = {
-        'action':('Flip or convert?', 'str'),
-        'amount':('How many?', 'int'),
+        'amount':('How many flips?', 'int'),
         }
     @staticmethod
     def use(parameters):
-        action = parameters['action']
         amount = parameters['amount']
-        answer = ""
-        if action.lower() == 'flip':
-            for i in range(int(amount)):
-                r = random.randint(0,1)
-                if r==0:
-                    answer = answer+'H'
-                else:
-                    answer = answer +'T'
-        if action.lower()=='convert':
-            answer = 'Contact a gm'
-        return answer
+        answer = "You flipped a coin. How exciting. You get the result "
+        for i in range(int(amount)):
+            r = random.randint(0,1)
+            if r==0:
+                answer = answer+'H'
+            else:
+                answe = answer+'T'
+        return answer+"."
 
 class taser():
     questions = {
@@ -177,6 +184,7 @@ class taser():
         make_itemtype(name)
         make_item(name, parameters['owner'])
         set_att('Tased', parameters['target'], 'True')
+        parameters['self'].delete()
         return 'You have tased '+str(parameters['target'])+ ' and recieved a '+name+'.'
 
 class honeyjar():
@@ -185,14 +193,61 @@ class honeyjar():
             }
     @staticmethod
     def use(parameters):
+        if get_att('Splashed', parameters['target']) == 'True':
+            return 'You have attempted to splash '+parameters['target']+'and failed because they were already sticky.'
         set_att('Splashed', parameters['target'], 'True')
+        parameters['self'].delete()
         return 'You have splashed '+parameters['target']+' with a honey jar.'
 
 class mafiacounter():
     questions = {
-            'action':('Sign or Use?', 'str'),
+            'action':('What do you want to do with it?', ('sign', 'unsign', 'use', 'check signatures', 'clear signatures')),
             }
-    
+    @staticmethod
+    def use(parameters):
+        name = 'MCsignature'+str(parameters['self'].id)
+        if parameters['action'].lower()=='use':
+            try:
+                signaturelist = RandomInfo.objects.get(name=name).content
+            except:
+                return "You tried to submit a mafia counter to the gods. Unfortunately, no one has ever signed this."
+            slist = string_to_list(signaturelist)
+            number = len(slist)
+            if number > get_majority():
+                return "You tried to submit a mafia counter to the gods. Unfortunately, you do not have enough signatures."
+            else:
+                learner = User.objects.get(username=random.choice(slist))
+                mafianumber = count_mafia()
+                write_message(addressee=learner, content="From the mafia counter you signed not too long ago, you learned that there exist "+mafianumber+" mafia in the world today.")
+                parameters['self'].delete()
+            return "You have successfully used your mafia counter. Tell everyone to check their messages!"
+        elif parameters['action'].lower()=='sign':
+            try:
+                ri = RandomInfo.objects.get(name=name)
+                signaturestr = ri.content
+                signaturelist = string_to_list(signaturestr)
+                if signaturelist.contains(parameters['owner']):
+                    return "You already signed this, silly."
+                signaturelist.append(str(parameters['owner']))
+                setattr(ri, 'content', list_to_string(signaturelist))
+                ri.save()
+            except Exception as e:
+                ri = RandomInfo(name=name, content=str(parameters['owner']))
+                ri.save()
+            return "You have signed this mafia counter. Congrats!"
+        elif parameters['action'].lower()=='check signatures':
+            try:
+                return "You have checked what people have signed this counter. It was the set of {"+RandomInfo.objects.get(name=name).content+'}.'
+            except Exception as e:
+                return str(e)
+                return "You tried to check what signatures were on this counter. Unfortunately, no one has ever signed this."
+        elif parameters['action'].lower()=='clear signatures':
+            si = RandomInfo.objects.filter(name=name)
+            for s in si:
+                si.delete()
+            return "All done!"
+
+
 class shovel():
     questions = {
             'target':('Who are you shoveling?', 'str'),
@@ -202,7 +257,9 @@ class shovel():
         name = 'Shovel Handle with '+str(parameters['target'])+' inscribed'
         make_itemtype(name)
         make_item(name, parameters['owner'])
-        return 'You have shoveled '+str(parameters['target'])+'. GMs will contact you with the info.'
+        role = get_att('Role', parameters['target'])
+        alignment = get_att('Alignment', parameters['target'])
+        return 'You have shoveled '+str(parameters['target'])+'. You uncover a piece of paper that tells you that their role is '+role+' and their alignment lies with '+alignment
     
 class spiritsearch():
     questions = {
