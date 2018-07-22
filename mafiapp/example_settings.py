@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
-PRODUCTION = TRUE
+PRODUCTION = True
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -33,7 +33,7 @@ else:
     EMAIL_HOST = p.EMAIL_HOST
     EMAIL_HOST_USER = p.EMAIL_HOST_USER
     EMAIL_HOST_PASSWORD = p.EMAIL_HOST_PASSWORD
-    EMAIL_PORT = EMAIL_PORT
+    EMAIL_PORT = p.EMAIL_PORT
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
