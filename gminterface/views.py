@@ -27,7 +27,7 @@ def playerprofile(request, playername):
     items = ItemInstance.objects.filter(owner=player)
     abilities = AbilityInstance.objects.filter(owner=player)
     context = {'player':player, 'items':items, 'abilities':abilities, 'attributes':attributes}
-    return render(request, 'gminterface/profile.html', context)
+    return render(request, 'gminterface/playerprofile.html', context)
 
 @user_passes_test(is_gm)
 def itemprofile(request, itemid):

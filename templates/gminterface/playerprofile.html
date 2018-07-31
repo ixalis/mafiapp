@@ -1,10 +1,10 @@
 {% extends "base_generic.html" %}
 {% block content %}
-<h1> Dashboard </h1>
-<h4><a href ="{% url 'inbox' %}">History</a></h4>
+<h1> {{player}} </h1>
+<h4><a href ="{% url 'playerinbox' player.username %}">Player History</a></h4>
 <div class="row">
 
-
+	
 <div class="col-sm-4">
 <div class="panel panel-default">
 <div class="panel-heading">Status</div>
@@ -12,13 +12,17 @@
 {% if attributes %}
 <ul class="list-group">
       	{% for attribute in attributes %} 
-	<li class="list-group-item">{{attribute.itype}} <span class="badge">{{attribute.value}}</span>
+	<li class="list-group-item">
+		{{attribute.itype}}<span class="badge"><a href="{% url 'changeattribute' attribute.id %}" style="color:white;">{{attribute.value}}</a></span>
+	</li>
       	{% endfor %}
 </ul>
-    {% endif %}
+{% endif %}
 </div>
 </div>
 </div>
+
+
 
 
 <div class="col-sm-4">
@@ -27,40 +31,43 @@
 <div class="panel-body">
     {% if abilities %}
     	<ul class="list-group">
+
       	{% for ability in abilities %} 
 	<li class="list-group-item" data-toggle="tooltip" title="{{ability.itype.description}}">
 		{{ability.itype}}
 		<div class="btn-toolbar pull-right" role="group">
 		<a href="{% url 'abilityactivate' ability.id %}" class="btn btn-info btn-xs" role="button">Activate</a>
+		<a href="{% url 'deleteability' ability.id %}" class="btn btn-info btn-xs" role="button">Delete</a>
 		</div>
 	</li>
       	{% endfor %}
 	</ul>
+   	
+	</ul>
 
     {% else %}
       	<p>You have no ablities. Sorry?</p>
-    {% endif %}       
+    {% endif %}
 </div>
 </div>
 </div>
-
-
-
 
 
 <div class="col-sm-4">
 <div class="panel panel-default">
-<div class="panel-heading">Inventory</div>
+<div class="panel-heading">Status</div>
 <div class="panel-body">
     {% if items %}
-    <ul class="list-group">
+    	<ul class="list-group">
+
       	{% for item in items %} 
 	<li class="list-group-item" data-toggle="tooltip" title="{{item.itype.description}}"> 
 		{{item.itype}}
 		<div class="btn-toolbar pull-right" role="group">
 		<a href="{% url 'itemtransfer' item.id %}" class="btn btn-info btn-xs" role="button">Transfer</a>
-		<a href="{% url 'itemuse' item.id %}" class="btn btn-info btn-xs" role="button">Use</a>
+		<a href="{% url 'deleteitem' item.id %}" class="btn btn-info btn-xs" role="button">Delete</a>
 		</div>
+		
 	</li>
       	{% endfor %}
    	
@@ -68,13 +75,8 @@
 
     {% else %}
       	<p>You have no items. Acquire some?</p>
-    {% endif %}
+    {% endif %}  
 </div>
-</div>
-
-
-
-
 </div>
 </div>
 

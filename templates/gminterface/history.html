@@ -1,9 +1,9 @@
 {% extends 'base_generic.html' %}
 {% block content %}
 <h1> Inbox </h1>
-<ul>
+<ul class="list-group">
 	{% for message in messages %}
-	<li> {{message.addressee}} - {{message}}</li>
+	<li class="list-group-item" data-toggle="tooltip" title="{{message.deliverytime}}"> {{message.content}} <div class="pull-right"> {{message.addressee}} </div></li>
 	{% endfor %}
 </ul>
 {% endblock %}
