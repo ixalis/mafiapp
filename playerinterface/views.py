@@ -21,8 +21,8 @@ def profile(request):
     View for User Profile
     """
     user = request.user
-    if is_gm(user):
-        return redirect('index')
+    #if is_gm(user):
+    #    return redirect('index')
     items = ItemInstance.objects.filter(owner=user)
     abilities = AbilityInstance.objects.filter(owner=user)
     attributes = []

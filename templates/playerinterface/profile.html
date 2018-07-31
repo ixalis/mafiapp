@@ -1,51 +1,82 @@
 {% extends "base_generic.html" %}
 {% block content %}
-<h1> {{player}} </h1>
+<h1> Dashboard </h1>
 <h4><a href ="{% url 'inbox' %}">Inbox</a></h4>
-    {% if attributes %}
-    	<table>
+<div class="row">
+
+
+<div class="col-sm-4">
+<div class="panel panel-default">
+<div class="panel-heading">Status</div>
+<div class="panel-body">
+{% if attributes %}
+<ul class="list-group">
       	{% for attribute in attributes %} 
-	<tr> 
-		<th>{{attribute.itype}}</th>
-		<th>{{attribute.value}}</th> 
-	</tr>
+	<li class="list-group-item">{{attribute.itype}} <span class="badge">{{attribute.value}}</span>
       	{% endfor %}
-	</table>
+</ul>
     {% endif %}
+</div>
+</div>
+</div>
 
-     <h2>Abilities</h2>
+
+<div class="col-sm-4">
+<div class="panel panel-default">
+<div class="panel-heading">Abilities</div>
+<div class="panel-body">
     {% if abilities %}
-    	<table>
-
+    	<ul class="list-group">
       	{% for ability in abilities %} 
-	<tr>
-		<th> <a href="{% url 'abilityactivate' ability.id %}"> {{ability.itype}} </a></th>
-		<th> {{ability.itype.description}}</th>
-	</tr>
+	<li class="list-group-item" data-toggle="tooltip" title="{{ability.itype.description}}">
+		{{ability.itype}}
+		<div class="btn-toolbar pull-right" role="group">
+		<a href="{% url 'abilityactivate' ability.id %}" class="btn btn-info btn-xs" role="button">Activate</a>
+		</div>
+	</li>
       	{% endfor %}
-	</table>
-   	
 	</ul>
 
     {% else %}
       	<p>You have no ablities. Sorry?</p>
     {% endif %}       
-    <h2>Inventory</h2>
+</div>
+</div>
+</div>
 
+
+
+
+
+<div class="col-sm-4">
+<div class="panel panel-default">
+<div class="panel-heading">Inventory</div>
+<div class="panel-body">
     {% if items %}
-    	<table>
-
+    <ul class="list-group">
       	{% for item in items %} 
-	<tr> 
-		<th><a href="{% url 'itemuse' item.id %}">{{item.itype}}</a></th>
-		<th>{{item.itype.description}}</th>
-		<th><form action="{% url 'itemtransfer' item.id %}"><input type="submit" value="Transfer" /> </form> </th>
-	</tr>
+	<li class="list-group-item" data-toggle="tooltip" title="{{item.itype.description}}"> 
+		{{item.itype}}
+		<div class="btn-toolbar pull-right" role="group">
+		<a href="{% url 'itemtransfer' item.id %}" class="btn btn-info btn-xs" role="button">Transfer</a>
+		<a href="{% url 'itemuse' item.id %}" class="btn btn-info btn-xs" role="button">Use</a>
+		</div>
+	</li>
       	{% endfor %}
    	
-	</table>
+	</ul>
 
     {% else %}
       	<p>You have no items. Acquire some?</p>
-    {% endif %}       
+    {% endif %}
+</div>
+</div>
+
+
+
+
+</div>
+</div>
+
+</div>
 {% endblock %}

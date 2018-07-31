@@ -160,8 +160,7 @@ class Instance(models.Model):
     class Meta:
         abstract = True
 
-    owner = models.ForeignKey(User)
-
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     def __str__(self):
         return '{0} ({1})'.format(self.owner, self.itype.name)
     
@@ -200,7 +199,7 @@ class ItemInstance(ActionInstance):
     """
     An instance of a single item
     """
-    itype = models.ForeignKey(Item)
+    itype = models.ForeignKey(Item, on_delete=models.CASCADE)
     
     def transfer(self, newowner):
         self.owner = newowner
@@ -210,20 +209,19 @@ class AbilityInstance(ActionInstance):
     """
     An instance of an ability
     """
-    itype = models.ForeignKey(Ability)
-
+    itype = models.ForeignKey(Ability, on_delete=models.CASCADE)
 class AttributeInstance(Instance):
     """
     An instance of an attribute
     """
-    itype = models.ForeignKey(Attribute)
+    itype = models.ForeignKey(Attribute, on_delete=models.CASCADE)
     value = models.CharField(max_length=1000, default = '0')
 
 class Message(models.Model):
     """
     A message, to be saved
     """
-    addressee = models.ForeignKey(User)
+    addressee = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.CharField(max_length=1000)
     deliverytime = models.DateTimeField(auto_now_add=True, blank=True)
     class Meta:
