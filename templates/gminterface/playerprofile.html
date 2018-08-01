@@ -1,7 +1,7 @@
 {% extends "base_generic.html" %}
 {% block content %}
 <h1> {{player}} </h1>
-<h4><a href ="{% url 'playerinbox' player.username %}">Player History</a></h4>
+<h4><a href ="{% url 'playerinbox' player.user.username %}">Player History</a></h4>
 <div class="row">
 
 	

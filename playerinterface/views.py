@@ -7,7 +7,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
 
 def is_gm(user):
-    return user.username=='admin'
+    return True
+    try:
+        return user.profile.currentPlayer.attributes.get("GM").value == 'True'
+    except:
+        return False
 
 def home(request):
     """
@@ -16,19 +20,19 @@ def home(request):
     return render(request, 'home.html', {})
 
 @login_required
-def profile(request):
+def dashboard(request):
     """
     View for User Profile
     """
-    user = request.user
-    items = ItemInstance.objects.filter(owner=user)
-    abilities = AbilityInstance.objects.filter(owner=user)
+    player = request.user.profile.currentPlayer
+    items = player.iteminstance_set.all()
+    abilities = player.abilityinstance_set.all()
     attributes = []
-    attributesme = PlayerAttributeInstance.objects.filter(element=user)
+    attributesme = player.attributes.all()
     for a in attributesme:
         if a.visible():
             attributes.append(a)
-    context = {'user':user, 'player':user, 'items':items, 'abilities':abilities, 'attributes':attributes}
+    context = {'user':request.user, 'player':player, 'items':items, 'abilities':abilities, 'attributes':attributes}
     return render(request, 'playerinterface/profile.html', context)
 
 @login_required
@@ -37,16 +41,17 @@ def itemuse(request, itemid):
     View for form for using an item
     """
     item = ItemInstance.objects.get(id=itemid)
-    if item.owner != request.user and not is_gm(request.user):
-        return redirect('profile')
+    if item.owner != request.user.profile.currentPlayer and not is_gm(request.user):
+        return redirect('dashboard')
 
     requests = item.get_requests()
     if request.method == 'POST':
         form = AutoGenerateForm(request.POST, extra=requests)
         if form.is_valid():
             parameters = form.get_answers()
+            parameters['owner'] = request.user.profile.currentPlayer
             message = item.use(parameters)
-            m = Message(addressee=parameters['owner'], content=message)
+            m = Message(addressee=parameters['owner'], content=message, game=request.user.profile.currentPlayer.game)
             m.save()
             #Display the message you get at the end
             context = {"message":message}
@@ -63,8 +68,8 @@ def itemtransfer(request, itemid):
     View form for transfering an item
     """
     item = ItemInstance.objects.get(id=itemid)
-    if item.owner != request.user and not is_gm(request.user):
-        return redirect('profile')
+    if item.owner != request.user.profile.currentPlayer and not is_gm(request.user):
+        return redirect('dashboard')
 
     requests = item.get_requests()
     if request.method == 'POST':
@@ -73,7 +78,7 @@ def itemtransfer(request, itemid):
             owner = form.get_answer()
             message = item.transfer(owner)
             item.save()
-            m = Message(addressee=owner, content=message)
+            m = Message(addressee=owner, content=message, game=request.user.profile.currentPlayer.game)
             #Display the message you get at the end
             context = {"message":message}
             return render(request, 'gmmessage.html', context)
@@ -92,16 +97,17 @@ def abilityactivate(request, abilityid):
     View for form for using an item
     """
     ability = AbilityInstance.objects.get(id=abilityid)
-    if ability.owner != request.user and not is_gm(request.user):
-        return redirect('profile')
+    if ability.owner != request.user.profile.currentPlayer and not is_gm(request.user):
+        return redirect('dashboard')
     
     requests = ability.get_requests()
     if request.method == 'POST':
         form = AutoGenerateForm(request.POST, extra=requests)
         if form.is_valid():
             parameters = form.get_answers()
+            parameters['owner'] = request.user.profile.currentPlayer
             message = ability.use(parameters)
-            m = Message(addressee=parameters['owner'], content=message)
+            m = Message(addressee=parameters['owner'], content=message, game=request.user.profile.currentPlayer.game)
             m.save()
             #Display the message you get at the end
             context = {"message":message}
@@ -113,9 +119,16 @@ def abilityactivate(request, abilityid):
     context = {'form':form, 'main':ability.itype.name, 'instruction':ability.get_usetext()}
     return render(request, "form.html", context)
 
+@login_required
+def profile(request):
+    game = request.user.profile.currentPlayer.game
+    context = {"message":"You are currently playing the game"+str(game)}
+    return render(request, "gmmessage.html", context)
+
+@login_required
 def inbox(request):
-    user = request.user
-    messages = Message.objects.filter(addressee=user)
+    player = request.user.profile.currentPlayer
+    messages = Message.objects.filter(addressee=player)
     context = {'messages':messages}
     return render(request, "playerinterface/inbox.html", context)
 

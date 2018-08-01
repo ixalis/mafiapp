@@ -5,12 +5,16 @@ from forms import *
 from django.contrib.auth.decorators import user_passes_test
 
 def is_gm(user):
-    return user.username=='admin' or user.username=='town1'
+    return True
+    try:
+        return user.profile.currentPlayer.attributes.get('GM').value == 'True'
+    except:
+        return False
 
 @user_passes_test(is_gm)
 def index(request):
     import gamegeneration.methods as methods2
-    players = User.objects.all()
+    players = Player.objects.all()
     items = Item.objects.all()
     abilities = Ability.objects.all()
     gmactions = dir(methods2.GM)
@@ -21,10 +25,10 @@ def index(request):
 
 @user_passes_test(is_gm)
 def playerprofile(request, playername):
-    player = User.objects.get(username=playername)
-    attributes = PlayerAttributeInstance.objects.filter(element=player)
-    items = ItemInstance.objects.filter(owner=player)
-    abilities = AbilityInstance.objects.filter(owner=player)
+    player = User.objects.get(username=playername).profile.currentPlayer
+    attributes = player.attributes.all()
+    items = player.iteminstance_set.all()
+    abilities = player.abilityinstance_set.all()
     context = {'player':player, 'items':items, 'abilities':abilities, 'attributes':attributes}
     return render(request, 'gminterface/playerprofile.html', context)
 
@@ -52,6 +56,7 @@ def generateitem(request, itemid):
         form = ItemInstanceForm(initial={'itype':item})
     context = {'form':form, 'main':item}
     return render(request, 'form.html', context)
+
 @user_passes_test(is_gm)
 def generateability(request, abilityid):
     ability = Ability.objects.get(id=abilityid)
@@ -74,31 +79,31 @@ def deleteitem(request, itemid):
 def deleteability(request, abilityid):
     ability = Abilityinstance.objects.get(id=abilityid)
     ability.delete()
-    return redirect('playerprofile', ability.owner.username)
+    return redirect('playerprofile', ability.owner.user.username)
 
 @user_passes_test(is_gm)
 def changeattribute(request, attid):
-    att = PlayerAttributeInstance.objects.get(id=attid)
+    att = Attribute.objects.get(id=attid)
     if request.method == 'POST':
-        form = PlayerAttributeInstanceForm(request.POST, instance=att)
+        form = AttributeForm(request.POST, instance=att)
         if form.is_valid():
             form.save()
-            return redirect(att.owner.username)
+            return redirect(att.element.user.username)
     else:
-        form = PlayerAttributeInstanceForm(instance=att)
+        form = AttributeForm(instance=att)
     context={'form':form, 'main':att}
     return render(request, 'form.html', context)
 
 @user_passes_test(is_gm)
 def history(request):
-    messages = Message.objects.all()
+    messages = request.user.profile.currentPlayer.game.message_set.all()
     context = {'messages':messages}
     return render(request, "gminterface/history.html", context)
 
 @user_passes_test(is_gm)
 def playerinbox(request, playername):
-    user = User.objects.get(username=playername)
-    messages = Message.objects.filter(addressee=user)
+    player = User.objects.get(username=playername).profile.currentPlayer
+    messages = player.message_set.all()
     context = {'messages':messages}
     return render(request, "playerinterface/inbox.html",context)
 
@@ -107,7 +112,8 @@ def GMAbility(request, abilityname):
     import gamegeneration.methods as methods1
     e = getattr(methods1.GM, abilityname)
     message = e()
-    m = Message(addressee=request.user, content=message)
+    m = Message(content=message, game=request.user.profile.currentPlayer.game)
     m.save()
+    m.addressee.add(request.user.profile.currentPlayer)
     context={'message':message}
     return render(request, "gmmessage.html", context)

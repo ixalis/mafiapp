@@ -1,8 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group, Permission
 import datetime
 from django.core.mail import EmailMessage
-#import methods
+from django.contrib.contenttypes.generic import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 
 ############# Abstract Game concepts ##############
 class Base(models.Model):
@@ -13,8 +14,9 @@ class Base(models.Model):
         abstract = True
 
     #Fields for descripion/name
-    name = models.CharField(max_length=200, default="Name")
-    description = models.TextField(default="This is where you enter a description.", blank = True)
+    name = models.CharField(max_length=200, default="Name", unique=True)
+    short_description = models.CharField(max_length=200, default="This is where you enter a mini blurb", blank = True)
+    long_description = models.TextField(default="This is where you enter rules.", blank=True)
 
     def __str__(self):
         return self.name
@@ -93,15 +95,10 @@ class Ability(Base):
         except AttributeError:
             description = getattr(methods, 'default').description
         return description
-
-#class Attribute(Base):
-#    """
-#    Defines Individual attributes/characteristics of Users that can be quantified.
-#    """
-#    atype = models.CharField(max_length=200, default="str")
-#    default = models.CharField(max_length=200, default="str")
-#    alwaysvisible = models.BooleanField(max_length=200, default=False)
-#    nondefaultvisible = models.BooleanField(max_length=200, default=True)
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    recieveEmails = models.BooleanField(default=False)
+    currentPlayer = models.ForeignKey('Player', on_delete=models.SET_NULL, null=True, blank=True)
 
 ############## Defining/Generating a Game #############
 class Game(models.Model):
@@ -109,28 +106,54 @@ class Game(models.Model):
     Defines a game within the website
     """
 
-    name = models.CharField(max_length=200, default="Game")
+    name = models.CharField(max_length=200, default="Game", unique=True)
     items = models.ManyToManyField(Item, blank=True)
     abilities = models.ManyToManyField(Ability, blank=True)
-    players = models.ManyToManyField(User, blank=True)
-
+    rules = models.CharField(max_length=2047, blank=True)
+    attributes = GenericRelation('Attribute')
+    active = models.BooleanField(default=False)
     def __str__(self):
         return self.name
 
+class Player(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    attributes = GenericRelation('Attribute')
+    game = models.ForeignKey(Game)
+
+    def __str__(self):
+        return self.user.username
+
 ######### Game Management ###########
+class Attribute(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    element = GenericForeignKey('content_type', 'object_id')
+    
+    name = models.CharField(max_length=200)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
+    value = models.CharField(max_length=1000, default='')
+    itype = models.CharField(max_length=100, default='str')
+    default = models.CharField(max_length=100, default='',null=True, blank=True)
+
+    alwaysVisible = models.BooleanField(default=True)
+    strangeVisible = models.BooleanField(default=False)
+
+    def visible(self):
+        return True
+
+
+
 class ActionInstance(models.Model):
     """
     Base class for Items and Abilities
     """
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True) 
     class Meta:
         abstract = True
 
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    #game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
     def __str__(self):
         return '{0} ({1})'.format(self.owner, self.itype.name)
     def use(self, parameters=None):
-        parameters['owner'] = self.owner
         parameters['itype']= self.itype
         parameters['self'] = self
         method_to_call = self.itype.get_usemethod()
@@ -151,9 +174,13 @@ class ItemInstance(ActionInstance):
     """
     An instance of a single item
     """
+    owner = models.ForeignKey(Player, on_delete=models.CASCADE)
     itype = models.ForeignKey(Item, on_delete=models.CASCADE)
+    attributes = GenericRelation(Attribute)
+    
     def transfer(self, newowner):
         self.owner = newowner
+        self.save()
         return "You have successfully transfered the item "+self.itype.name
 
 class AbilityInstance(ActionInstance):
@@ -161,49 +188,16 @@ class AbilityInstance(ActionInstance):
     An instance of an ability
     """
     itype = models.ForeignKey(Ability, on_delete=models.CASCADE)
-
-class AttributeInstance(models.Model):
-    class Meta:
-        abstract = True
-    name = models.CharField(max_length=200)
-    #game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
-    value = models.CharField(max_length=1000, default='')
-    itype = models.CharField(max_length=100, default='str')
-    default = models.CharField(max_length=100, default='',null=True, blank=True)
-
-    alwaysVisible = models.BooleanField(default=True)
-    strangeVisible = models.BooleanField(default=False)
-
-    def visible(self):
-        return True
-
-class PlayerAttributeInstance(AttributeInstance):
-    """
-    An instance of an attribute
-    """
-    element = models.ForeignKey(User, on_delete=models.CASCADE)
-
-class ItemAttributeInstance(AttributeInstance):
-    """
-    An instance of an attribute
-    """
-    element = models.ForeignKey(ItemInstance, on_delete=models.CASCADE)
-    
-class GameAttributeInstance(AttributeInstance):
-    """
-    A property of the game
-    """
-    pass
-
+    owner = models.ManyToManyField(Player)
 
 class Message(models.Model):
     """
     A message, to be saved
     """
-    addressee = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
-    content = models.CharField(max_length=1000)
+    addressee = models.ForeignKey(Player)    
+    content = models.TextField(default="Please contact GMs")
     deliverytime = models.DateTimeField(auto_now_add=True, blank=True)
-    #game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ['deliverytime']
@@ -220,18 +214,9 @@ class Message(models.Model):
         if not self.pk:
             e = EmailMessage('New Mafia Occurrence', self.content, to=['mafiapp31415@gmail.com'])
             e.send()
-            if self.addressee.email:
+            try:
                 e2 = EmailMessage('New Mafia Occurrence', self.content, to=[self.addressee.email])
                 e2.send()
+            except:
+                pass
         super(Message, self).save(*args, **kwargs)
-
-class RandomInfo(models.Model):
-    """
-    Storing random bits of information
-    """
-    name = models.CharField(max_length=50, default='Default')
-    content = models.CharField(max_length=9999, default='')
-    #game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
-    def __str__(self):
-        return self.content
-
