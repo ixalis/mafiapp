@@ -1,33 +1,64 @@
 #from django.contrib.auth.models import User
 from gamegeneration.models import *
 import random
+from django.db.models import Q
+from functools import reduce 
 
 ################################ DJANGO INTERACTION METHODS ###############################
 def user(username):
     return User.objects.get(username=username)
 
-def get_att(attribute, user):
-    att = Attribute.objects.get(name=attribute)
-    atti = AttributeInstance.objects.filter(itype=att).get(owner=user)
-    return getattr(atti, 'value')
+def get_playeratt(attribute, user):
+    try:
+        a = PlayerAttributeInstance.objects.filter(element=user).get(name=attribute)
+        return a.value
+    except:
+        return None
+def get_itematt(attribute, item):
+    try:
+        a = ItemAttributeInstance.objects.filter(element=item).get(name=attribute)
+        return a.value
+    except:
+        return None
 
-def set_att(attribute, user, value):
-    att = Attribute.objects.get(name=attribute)
-    atti = AttributeInstance.objects.filter(itype=att).get(owner=user)
-    setattr(atti, 'value', value)
-    atti.save()
+def get_gameatt(attribute, game):
+    try:
+        a = GameAttributeInstance.objects.filter(element=game).get(name=attribute)
+        return a.value
+    except:
+        return None
 
-def make_att(name, atype='str', default='0', description='No description', alwaysvisible=False, nondefaultvisible=True):
-    if Attribute.objects.filter(name=name).count() == 0:
-        att = Attribute(name=name, atype=atype, default=default, description=description, alwaysvisible=alwaysvisible, nondefaultvisible=nondefaultvisible);
-        att.save()
-        for user in User.objects.all():
-            atti = AttributeInstance(itype=att, owner=user, value=att.default)
-            atti.save()
+def set_playeratt(attribute, user, value, atype='str', default='', alwaysVisible=False, strangeVisible=False):
+    try:
+        a = PlayerAttributeInstance.objects.filter(element=user).get(name=attribute)
+        setattr(a, 'value', value)
+        a.save()
+    except:
+        a = PlayerAttributeInstance(name=attribute, element=user, value=value, itype='str', default=default, alwaysVisible=alwaysVisible, strangeVisible=strangeVisible)
+        a.save()
+
+def set_itematt(attribute, item, value, atype='str', default='', alwaysVisible=False, strangeVisible=False):
+    try:
+        a = ItemAttributeInstance.objects.filter(element=user).get(name=attribute)
+        setattr(a, 'value', value)
+        a.save()
+    except:
+        a = PlayerAttributeInstance(name=item, element=item, value=value, itype='str', default=default, alwaysVisible=alwaysVisible, strangeVisible=strangeVisible)
+        a.save()
+
+def set_gameatt(attribute, game, value, atype='str', default='', alwaysVisible=False, strangeVisible=False):
+    try:
+        a = GameAttributeInstance.objects.filter(element=game).get(name=attribute)
+        setattr(a, 'value', value)
+        a.save()
+    except:
+        a = GameAttributeInstance(name=game, value=value, itype='str', default=default, alwaysVisible=alwaysVisible, strangeVisible=strangeVisible)
+        a.save()
 
 def make_item(itype, owner):
     item = ItemInstance(itype=Item.objects.get(name=itype), owner=owner)
     item.save()
+    return item
 
 def make_itemtype(name, description='No description'):
     if Item.objects.filter(name=name).count() == 0:
@@ -39,34 +70,14 @@ def write_message(message, addressee):
     m.save()
 
 ######################################### HELPER METHODS #########################################
-class default():
-    questions = {}
-    description = ""
-    @staticmethod
-    def use(parameters):
-        return "You have used the item " + str(parameters['itype']) + ". GMs have been notified."
-    def activate(parameters):
-        return "You have used the ability " + str(parameters['itype']) + ". GMs have been notified."
-
 def is_guilty(target, death):
     try:
-        if Attribute.objects.filter(name='Dead').get(owner=death) == 'False':
-            return False
-        att = Attribute.objects.get(name=str(target)+'Guilty')
-        atti = AttributeInstance.objects.filter(itype=att).get(owner=target)
-        v = getattr(atti, 'value')
-        if v=='True':
+        a = PlayerAttributeInstance.objects.filter(name=str(target)+'Guilty').get(owner=death) 
+        if a.value == 'True':
             return True
         return False
     except:
         return False
-
-def clearattribute(name):
-    a = Attribute.objects.get(name=name)
-    ai = AttributeInstance.objects.filter(itype=a)
-    for att in ai:
-        setattr(att, 'value', a.default)
-        att.save()
 
 def string_to_list(string):
     return string.split(',')
@@ -86,18 +97,34 @@ def genability(name, user):
 
 
 ########################################## ABILITIES #############################################
+class default():
+    questions = {
+            'input':('textbox', 'str'),
+            }
+    description = ""
+    @staticmethod
+    def use(parameters):
+        return "You have used the item " + str(parameters['itype']) + ". <br> GMs have been notified."
+    @staticmethod
+    def activate(parameters):
+        return "You have used the ability " + str(parameters['itype']) + ".<br> GMs have been notified."
+
 class kill():
     questions = {
             'target':('Who did you kill?', 'User'),
             'time':('When did you kill them?', 'time'),
             'place':('Where did this murder take place?', 'str'),
+            'pleadguilty':('Did the target plead guilty?', 'boolean'),
             }
 
     @staticmethod
     def activate(parameters):
-        set_att('Dead', parameters['target'], 'True')
-        make_att(str(parameters['target'])+'Guilty', atype='boolean', default='False')
-        set_att(str(parameters['target'])+'Guilty',parameters['owner'], 'True')
+        if parameters['pleadguilty'].lower() == 'yes':
+            return "You have attempted to kill {1}, at {2} and {3}, but they plead guilty.".format(parameters['target'], parameters['time'], parameters['place'])
+        set_playeratt('Alive', parameters['target'], 'False')
+        for u in User.objects.all():
+            set_playeratt(str(parameters['target'])+'Guilty', itype='boolean', value='False')
+        set_att(str(parameters['target'])+'Guilty',parameters['owner'], 'True', alwaysvisible=True)
         parameters['self'].delete()
         return "You have killed "+str(parameters['target'])+" at "+parameters['time']+" at "+parameters['place']+'.'
 
@@ -107,7 +134,7 @@ class lynchvote():
             }
     @staticmethod
     def activate(parameters):
-        set_att('Voted for', parameters['owner'], str(parameters['target']))
+        set_playeratt('Voted for', parameters['owner'], str(parameters['target']))
         return "You have voted for "+str(parameters['target'])+"."
 
 class pickpocket():
@@ -158,7 +185,7 @@ class admire():
         }
     @staticmethod
     def activate(parameters):
-        set_att('Admiring', parameters['owner'], parameters['target'])
+        set_playeratt('Admiring', parameters['owner'], parameters['target'], alwaysVisible=True)
         return 'You successfully admired them!'
 
 
@@ -168,8 +195,8 @@ class roleblock():
         }
     @staticmethod
     def activate(parameters):
-        set_att('Roleblocking', parameters['owner'], parameters['target'])
-        set_att('Roleblocked', parameters['target'], 'True')
+        set_playeratt('Roleblocking', parameters['owner'], parameters['target'], alwaysVisible=True)
+        set_playeratt('Roleblocked', parameters['target'], 'True', alwaysVisible=True)
         parameters['self'].delete()
         return 'You have successfully roleblocked them!'
 
@@ -186,7 +213,7 @@ class priestset():
         for u in parameters['set2']:
             set1 = set1+str(u)+','
         sett = set1[:-1]+'|'+set1[:-1]
-        set_att('Priest Sets', parameters['owner'], sett)
+        set_att('Priest Sets', parameters['owner'], sett, alwaysVisible=True)
         return 'You have successfully priested ' + sett.replace("|", " and ")
 
 class setinvestigation():
@@ -216,7 +243,7 @@ class vigilantekill():
     @staticmethod
     def activate(parameters):
         kill.activate(parameters)
-        alignment = AttributeInstance.filter(name='Alignment').get(owner=parameters['target']).value
+        alignment = get_playeratt('Alignment', parameters['target'])
         result = "You have killed "+parameters['target']+' at '+parameters['time']+' and '+parameters['place']+' and learned that your target was '+alignment+'.'
         parameters['self'].delete()
         if alignment=='Town':
@@ -226,18 +253,36 @@ class vigilantekill():
 class planeswalk():
     questions = {
             'choice':('Pick what you want to do', ('Gain 2 points', 'Spend N points to get another role', 'Spend 7 points to use Vigilante Role'))
+            'role':(('What Role action would you like?'), 'str')
             }
     @staticmethod
     def activate(parameters):
         if parameters['choice']=='Gain 2 points':
-            n = get_att('Planeswalker points', parameters['owner'])
-            set_att('Planeswalker points', parameters['owner'], str(int(n)+2))
+            n = get_playeratt('Planeswalker points', parameters['owner'])
+            set_playeratt('Planeswalker points', parameters['owner'], str(int(n)+2))
             parameters['self'].delete()
             return "You have successfully gained 2 planeswalker points!"
         elif parameters['choice']=='Spend N points to get another role':
             return "Contact GMs please"
         else:
             return "Contact GMs please"
+class schemekill(kill):
+    pass
+
+class trap():
+    questions = {
+        'target': ('Who are you trapping?', 'User'),
+        'role': ('As what?', 'str'),
+        }
+    @staticmethod
+    def activate(parameters):
+        arole = get_playeratt('Role', parameters['target'])
+        splashed = get_playeratt('Splashed', parameters['target'])
+        if splashed == 'True' or parameters['role']==arole:
+            set_playeratt('Trapped', parameters['target'], 'True')
+            return 'Your Trap has succeeded!'
+        parameters[self].delete()
+        return 'Your Trap has failed. Sorry!'
 
 
 ########################################### ITEMS ################################################
@@ -264,9 +309,9 @@ class taser():
     @staticmethod
     def use(parameters):
         name = 'Taser Handle with '+str(parameters['target'])+' inscribed'
-        make_itemtype(name)
-        make_item(name, parameters['owner'])
-        set_att('Tased', parameters['target'], 'True')
+        i = make_item('Taser Handle', parameters['owner'])
+        set_playeratt('Tased', str(parameters['target']), 'True', alwaysVisble=True)
+        set_itematt('Inscribed', i, parameters['target'])
         parameters['self'].delete()
         return 'You have tased '+str(parameters['target'])+ ' and recieved a '+name+'.'
 
@@ -276,9 +321,9 @@ class honeyjar():
             }
     @staticmethod
     def use(parameters):
-        if get_att('Splashed', parameters['target']) == 'True':
+        if get_playeratt('Splashed', parameters['target']) == 'True':
             return 'You have attempted to splash '+parameters['target']+'and failed because they were already sticky.'
-        set_att('Splashed', parameters['target'], 'True')
+        set_playeratt('Splashed', parameters['target'], 'True')
         parameters['self'].delete()
         return 'You have splashed '+str(parameters['target'])+' with a honey jar.'
 
@@ -288,11 +333,9 @@ class mafiacounter():
             }
     @staticmethod
     def use(parameters):
-        name = 'MCsignature'+str(parameters['self'].id)
         if parameters['action'].lower()=='use':
-            try:
-                signaturelist = RandomInfo.objects.get(name=name).content
-            except:
+            signaturelist = get_itematt('Signatures', parameters['self'])
+            if signaturelist is None:
                 return "You tried to submit a mafia counter to the gods. Unfortunately, no one has ever signed this."
             slist = string_to_list(signaturelist)
             number = len(slist)
@@ -305,25 +348,22 @@ class mafiacounter():
                 parameters['self'].delete()
             return "You have successfully used your mafia counter. Tell everyone to check their messages!"
         elif parameters['action'].lower()=='sign':
-            try:
-                ri = RandomInfo.objects.get(name=name)
-                signaturestr = ri.content
-                signaturelist = string_to_list(signaturestr)
-                if signaturelist.contains(parameters['owner']):
-                    return "You already signed this, silly."
-                signaturelist.append(str(parameters['owner']))
-                setattr(ri, 'content', list_to_string(signaturelist))
-                ri.save()
-            except Exception as e:
-                ri = RandomInfo(name=name, content=str(parameters['owner']))
-                ri.save()
+            signatures = get_itematt('Signatures', parameters['self'])
+            if signatures:
+                signaturelist = string_to_list(signatures)
+            else:
+                signaturelist = []
+            if signaturelist.contains(parameters['owner']):
+                return "You already signed this, silly."
+            signaturelist.append(str(parameters['owner']))
+            set_itematt('Signatures', parameters['self'], list_to_string(signaturelist))
             return "You have signed this mafia counter. Congrats!"
         elif parameters['action'].lower()=='check signatures':
             try:
-                return "You have checked what people have signed this counter. It was the set of {"+RandomInfo.objects.get(name=name).content+'}.'
+                return "You have checked what people have signed this counter. It was the set of {"+get_itematt('Signatures', parameters['self'])+'}.'
             except Exception as e:
                 return str(e)
-                return "You tried to check what signatures were on this counter. Unfortunately, no one has ever signed this."
+                return "There was an error. Contact GM's to know more"
         elif parameters['action'].lower()=='clear signatures':
             si = RandomInfo.objects.filter(name=name)
             for s in si:
@@ -337,9 +377,8 @@ class shovel():
             }
     @staticmethod
     def use(parameters):
-        name = 'Shovel Handle with '+str(parameters['target'])+' inscribed'
-        make_itemtype(name)
-        make_item(name, parameters['owner'])
+        i = make_item('Shovel Handle', parameters['owner'])
+        set_itematt('Inscribed', i, str(parameters['target']), alwaysVisible=True)
         role = get_att('Role', parameters['target'])
         alignment = get_att('Alignment', parameters['target'])
         return 'You have shoveled '+str(parameters['target'])+'. You uncover a piece of paper that tells you that their role is '+role+' and their alignment lies with '+alignment
@@ -353,87 +392,59 @@ class spiritsearch():
     def use(parameters):
         g = parameters['group']
         learner = random.choice(g)
-
-        try:
-            tracker = RandomInfo.objects.get(name="SpiritSearch"+str(parameters['self'].id))
-        except:
-            tracker = RandomInfo(name="SpiritSearch"+str(parameters['self'].id), content="")
-            tracker.save()
-        number = len(tracker.content)
+        number = get_gameatt('SpiritSearch'+str(parameters['death'], 'Vanilla'))
+        if number:
+            number = int(number)
+        else:
+            number = 0
         if number >= 2:
             response = random.choice(['not guilty', 'guilty'])
-
         else:
             response = 'not guilty'
             for user in g:
                 if is_guilty(user, parameters['death']):
                     response = 'guilty'
+            set_gameatt('SpiritSearch'+str(parameters['death']), 'Vanilla', str(number+1))
         write_message('From the Spirit Search you just participated in, you have learned that someone in your party was '+response+" for "+parameters['death']+"'s death.", learner)
-        setattr(tracker, 'content', tracker.content+'I')
         return "You have used a Spirit Search on"+parameters['death']+"'s death. Someone in your group has learned something. Check everyone's messages!"
-
-class trap():
-    questions = {
-        'target': ('Who are you trapping?', 'User'),
-        'role': ('As what?', 'str'),
-        }
-    @staticmethod
-    def use(parameters):
-        arole = get_att('Role', parameters['target'])
-        splashed = get_att('Splashed', parameters['target'])
-        if parameters['role'] == arole or splashed == 'True':
-            set_att('Trapped', parameters['target'], 'True')
-            return 'Your Trap has succeeded!'
-        return 'Your Trap has failed. Sorry!'
-
-
 
 ############################# GM METHODS ##############################
 class GM():
     @staticmethod
     def clearvotes():
-        clearattribute('Voted For')
+        vf = PlayerAttributeInstance.objects.filter(name='Voted For')
+        for o in vf:
+            o.delete()
         return 'All the votes have been reset'
         
     @staticmethod
     def countvotes():
         answer = ""
-        a = Attribute.objects.get(name='Voted for')
-        ai = AttributeInstance.objects.filter(itype=a)
+        a = PlayerAttributeInstance.objects.filter(name='Voted for')
         for user in User.objects.all():
-            count = ai.filter(value=user.username).count()
+            count = a.filter(value=user.username).count()
             if count > 0:
                 answer = answer+user.username+': '+str(count)+'<br>'
         return answer
     
     @staticmethod
     def clear1DayAbilities():
-        pi = Ability.objects.filter(name='Pair Investigation')
-        kill = Ability.objects.filter(name='Kill')
-        pick = Ability.objects.filter(name='Pickpocket')
-        rb = Ability.objects.filter(name='Roleblock')
-        si = Ability.objects.filter(name='Set Investigation')
 
-        for o in pi:
-            o.delete()
-        for o in kill:
-            o.delete()
-        for o in pick:
-            o.delete()
-        for o in rb:
-            o.delete()
-        for o in si:
-            o.delete()
+        names = ['Pickpocket', 'Kill', 'Pair Investigation', 'Roleblock', 'Set Investigation']
+        queryset = AbilityInstance.objects.filter(reduce(lambda x, y: x | y, [Q(itype=Ability.objects.get(name=att)) for att in names]))
+        for i in queryset:
+            i.delete()
         return 'All Cleared!'
 
     @staticmethod
     def generateAbilities():
         rolers = []
-        for i in AttributeInstance.objects.filter(name='Role'):
+        for i in PlayerAttributeInstance.objects.filter(name='Role'):
             rolers.append((i.owner, i.value))
         atters = []
-        for i in AttributeInstance.objects.filter(name='Attribute'):
+        for i in PlayerAttributeInstance.objects.filter(name='Attribute'):
             atters.append((i.owner, i.value))
+
         for u in rolers:
             if u[1]=='Roleblocker':
                 genability('Roleblock', u[0])
@@ -441,16 +452,32 @@ class GM():
                 genability('Pickpocket', u[0])
             elif u[1]=='Pair Investigator':
                 genability('Pair Investigation', u[0])
+                genability('Pair Investigation', u[0])
         for u in atters:
             if u[1]=='Mafia':
                 genability('Kill', u[0])
         return 'Generated'
 
     @staticmethod
+    def clearAttributes():
+        names = ['Roleblocked', 'Roleblocking', 'Admiring']
+        queryset = PlayerAttributeInstance.objects.filter(reduce(lambda x, y: x | y, [Q(name=att) for att in names]))
+        for i in queryset:
+            i.delete()
+        return 'All Cleared!'
+    @staticmethod
     def dayRollover():
-        GM.countvotes()
-        votes = GM.clearvotes
+        votes = GM.countvotes()
+        GM.clearvotes()
+        GM.clearAttributes()
         GM.clear1DayAbilities()
         GM.generateAbilities()
         return votes
 
+    @staticmethod
+    def resetRoleAttributeAlive():
+        for u in User.objects.all():
+            set_playeratt('Role', u, 'Vanilla Townie')
+            set_playeratt('Attribute', u, 'Town')
+            set_playeratt('Alive', u, 'True')
+        return 'Roles, Attributes, and Alive Status reset'

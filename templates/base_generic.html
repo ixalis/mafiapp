@@ -15,7 +15,11 @@ $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip();
 });
 </script>
-
+<script>
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover();
+});
+</script>
 {% block head %}
 {% endblock %}
 
@@ -55,8 +59,9 @@ body {
 		  <li><a href="{% url 'index' %}">GM Index</a></li>
           </ul>
         </li>
-	<li><a href="{% url 'profile' %}">Profile</a></li>
+	<li><a href="{% url 'profile' %}">Dashboard</a></li>
 	<li><a href="http://mafia.mit.edu">Forums</a></li>
+	<li><a href="https://goo.gl/aG8HGb">Long Rules</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
 	{% if user.is_authenticated %}

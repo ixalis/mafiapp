@@ -21,25 +21,13 @@ def profile(request):
     View for User Profile
     """
     user = request.user
-    #if is_gm(user):
-    #    return redirect('index')
     items = ItemInstance.objects.filter(owner=user)
     abilities = AbilityInstance.objects.filter(owner=user)
     attributes = []
-    attributesme = AttributeInstance.objects.filter(owner=user)
-    for itype in Attribute.objects.all():
-        if itype.alwaysvisible:
-            try:
-                attributes.append(attributesme.get(itype=itype))
-            except:
-                pass
-        elif itype.nondefaultvisible:
-            try:
-                attribute = attributesme.get(itype=itype)
-                if itype.default != attribute.value:
-                    attributes.append(attribute)
-            except:
-                pass
+    attributesme = PlayerAttributeInstance.objects.filter(element=user)
+    for a in attributesme:
+        if a.visible():
+            attributes.append(a)
     context = {'user':user, 'player':user, 'items':items, 'abilities':abilities, 'attributes':attributes}
     return render(request, 'playerinterface/profile.html', context)
 
@@ -49,7 +37,7 @@ def itemuse(request, itemid):
     View for form for using an item
     """
     item = ItemInstance.objects.get(id=itemid)
-    if item.get_owner() != request.user and not is_gm(request.user):
+    if item.owner != request.user and not is_gm(request.user):
         return redirect('profile')
 
     requests = item.get_requests()
@@ -67,7 +55,7 @@ def itemuse(request, itemid):
         form = AutoGenerateForm(extra = requests)
     
     #Render the form
-    context = {'form':form, 'main':item.get_itype().get_name(), 'instruction':item.get_usetext()}
+    context = {'form':form, 'main':item.itype.name, 'instruction':item.get_usetext()}
     return render(request, "form.html", context)
 
 def itemtransfer(request, itemid):
@@ -75,7 +63,7 @@ def itemtransfer(request, itemid):
     View form for transfering an item
     """
     item = ItemInstance.objects.get(id=itemid)
-    if item.get_owner() != request.user and not is_gm(request.user):
+    if item.owner != request.user and not is_gm(request.user):
         return redirect('profile')
 
     requests = item.get_requests()
@@ -104,7 +92,7 @@ def abilityactivate(request, abilityid):
     View for form for using an item
     """
     ability = AbilityInstance.objects.get(id=abilityid)
-    if ability.get_owner() != request.user and not is_gm(request.user):
+    if ability.owner != request.user and not is_gm(request.user):
         return redirect('profile')
     
     requests = ability.get_requests()
@@ -122,7 +110,7 @@ def abilityactivate(request, abilityid):
         form = AutoGenerateForm(extra = requests)
     
     #Render the form
-    context = {'form':form, 'main':ability.get_itype().get_name(), 'instruction':ability.get_usetext()}
+    context = {'form':form, 'main':ability.itype.name, 'instruction':ability.get_usetext()}
     return render(request, "form.html", context)
 
 def inbox(request):

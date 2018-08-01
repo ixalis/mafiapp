@@ -13,7 +13,7 @@
 <ul class="list-group">
       	{% for attribute in attributes %} 
 	<li class="list-group-item">
-		{{attribute.itype}}<span class="badge"><a href="{% url 'changeattribute' attribute.id %}" style="color:white;">{{attribute.value}}</a></span>
+		{{attribute.name}}<span class="badge"><a href="{% url 'changeattribute' attribute.id %}" style="color:white;">{{attribute.value}}</a></span>
 	</li>
       	{% endfor %}
 </ul>

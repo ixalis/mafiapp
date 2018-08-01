@@ -19,16 +19,6 @@ class Base(models.Model):
     def __str__(self):
         return self.name
 
-    #Get/Set functions
-    def get_description(self):
-        return self.description
-    def set_description(self, text):
-        self.description = text
-    def get_name(self):
-        return self.name
-    def set_name(self, text):
-        self.name = text
-
 class Item(Base):
     """
     Defines items in the game
@@ -79,7 +69,7 @@ class Ability(Base):
         import methods
         try:
              method = getattr(methods, self.name.replace(" ", "").lower()).activate
-        except AttributeError:
+        except:
             method = getattr(methods, 'default').activate
         return method
     def get_usequestions(self):
@@ -104,18 +94,14 @@ class Ability(Base):
             description = getattr(methods, 'default').description
         return description
 
-class Attribute(Base):
-    """
-    Defines Individual attributes/characteristics of Users that can be quantified.
-    """
-    atype = models.CharField(max_length=200, default="str")
-    default = models.CharField(max_length=200, default="str")
-    alwaysvisible = models.BooleanField(max_length=200, default=False)
-    nondefaultvisible = models.BooleanField(max_length=200, default=True)
-    def get_atype(self):
-        return self.atype
-    def set_atype(self, v):
-        self.atype = v
+#class Attribute(Base):
+#    """
+#    Defines Individual attributes/characteristics of Users that can be quantified.
+#    """
+#    atype = models.CharField(max_length=200, default="str")
+#    default = models.CharField(max_length=200, default="str")
+#    alwaysvisible = models.BooleanField(max_length=200, default=False)
+#    nondefaultvisible = models.BooleanField(max_length=200, default=True)
 
 ############## Defining/Generating a Game #############
 class Game(models.Model):
@@ -124,62 +110,28 @@ class Game(models.Model):
     """
 
     name = models.CharField(max_length=200, default="Game")
-    #Allows the creator to pick what items and abilities to include in the game. Can be None
     items = models.ManyToManyField(Item, blank=True)
     abilities = models.ManyToManyField(Ability, blank=True)
-    #Defines what players are playing this game. Can be none
     players = models.ManyToManyField(User, blank=True)
 
     def __str__(self):
         return self.name
 
-    #Get functions
-    def get_items(self):
-        return self.items
-    def get_abilities(self):
-        return self.abilities
-    def get_players(self):
-        return self.players
-
-    #Add functions
-    def add_item(self, item):
-        self.items.add(item)
-    def add_ability(self, ability):
-        self.abilities.add(ability)
-    def add_player(self, player):
-        self.players.add(player)
-
-
-
-
 ######### Game Management ###########
-class Instance(models.Model):
+class ActionInstance(models.Model):
     """
-    Base Class for all instances. Defines an owner for each instance, and which game it belongs to.
+    Base class for Items and Abilities
     """
     class Meta:
         abstract = True
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    #game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
     def __str__(self):
         return '{0} ({1})'.format(self.owner, self.itype.name)
-    
-    #Get functions
-    def get_owner(self):
-        return self.owner
-    def get_itype(self):
-        return self.itype
-
-
-class ActionInstance(Instance):
-    """
-    Base class for Items and abilities
-    """
-    class Meta:
-        abstract = True
     def use(self, parameters=None):
-        parameters['owner'] = self.get_owner()
-        parameters['itype']= self.get_itype()
+        parameters['owner'] = self.owner
+        parameters['itype']= self.itype
         parameters['self'] = self
         method_to_call = self.itype.get_usemethod()
         if parameters:
@@ -200,7 +152,6 @@ class ItemInstance(ActionInstance):
     An instance of a single item
     """
     itype = models.ForeignKey(Item, on_delete=models.CASCADE)
-    
     def transfer(self, newowner):
         self.owner = newowner
         return "You have successfully transfered the item "+self.itype.name
@@ -210,20 +161,50 @@ class AbilityInstance(ActionInstance):
     An instance of an ability
     """
     itype = models.ForeignKey(Ability, on_delete=models.CASCADE)
-class AttributeInstance(Instance):
+
+class AttributeInstance(models.Model):
+    class Meta:
+        abstract = True
+    name = models.CharField(max_length=200)
+    #game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
+    value = models.CharField(max_length=1000, default='')
+    itype = models.CharField(max_length=100, default='str')
+    default = models.CharField(max_length=100, default='',null=True, blank=True)
+
+    alwaysVisible = models.BooleanField(default=True)
+    strangeVisible = models.BooleanField(default=False)
+
+    def visible(self):
+        return True
+
+class PlayerAttributeInstance(AttributeInstance):
     """
     An instance of an attribute
     """
-    itype = models.ForeignKey(Attribute, on_delete=models.CASCADE)
-    value = models.CharField(max_length=1000, default = '0')
+    element = models.ForeignKey(User, on_delete=models.CASCADE)
+
+class ItemAttributeInstance(AttributeInstance):
+    """
+    An instance of an attribute
+    """
+    element = models.ForeignKey(ItemInstance, on_delete=models.CASCADE)
+    
+class GameAttributeInstance(AttributeInstance):
+    """
+    A property of the game
+    """
+    pass
+
 
 class Message(models.Model):
     """
     A message, to be saved
     """
-    addressee = models.ForeignKey(User, on_delete=models.CASCADE)
+    addressee = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     content = models.CharField(max_length=1000)
     deliverytime = models.DateTimeField(auto_now_add=True, blank=True)
+    #game = models.ForeignKey(Game, on_delete=models.CASCADE)
+
     class Meta:
         ordering = ['deliverytime']
     def __str__(self):
@@ -238,10 +219,10 @@ class Message(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk:
             e = EmailMessage('New Mafia Occurrence', self.content, to=['mafiapp31415@gmail.com'])
-            #e.send()
+            e.send()
             if self.addressee.email:
                 e2 = EmailMessage('New Mafia Occurrence', self.content, to=[self.addressee.email])
-                #e2.send()
+                e2.send()
         super(Message, self).save(*args, **kwargs)
 
 class RandomInfo(models.Model):
@@ -250,7 +231,7 @@ class RandomInfo(models.Model):
     """
     name = models.CharField(max_length=50, default='Default')
     content = models.CharField(max_length=9999, default='')
-
+    #game = models.ForeignKey(Game, on_delete=models.CASCADE, blank=True, null=True)
     def __str__(self):
         return self.content
 

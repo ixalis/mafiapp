@@ -3,7 +3,7 @@
 <h1> Inbox </h1>
 <ul class="list-group">
 	{% for message in messages %}
-	<li class="list-group-item" data-toggle="tooltip" title="{{message.deliverytime}}"> {{message.content}} </li>
+	<li class="list-group-item" data-toggle="tooltip" title="{{message.deliverytime}}"> {{message.content | safe}} </li>
 	{% endfor %}
 </ul>
 {% endblock %}

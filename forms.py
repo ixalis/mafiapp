@@ -43,9 +43,9 @@ class AbilityInstanceForm(forms.ModelForm):
     class Meta:
         model = AbilityInstance
 
-class AttributeInstanceForm(forms.ModelForm):
+class PlayerAttributeInstanceForm(forms.ModelForm):
     class Meta:
-        model = AttributeInstance
+        model = PlayerAttributeInstance
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(required=False, max_length=254, help_text='Enter a valid email address if you want email notifications')

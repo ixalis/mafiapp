@@ -12,7 +12,7 @@
 {% if attributes %}
 <ul class="list-group">
       	{% for attribute in attributes %} 
-	<li class="list-group-item">{{attribute.itype}} <span class="badge">{{attribute.value}}</span>
+	<li class="list-group-item">{{attribute.name}} <span class="badge">{{attribute.value}}</span>
       	{% endfor %}
 </ul>
     {% endif %}
@@ -55,7 +55,7 @@
     {% if items %}
     <ul class="list-group">
       	{% for item in items %} 
-	<li class="list-group-item" data-toggle="tooltip" title="{{item.itype.description}}"> 
+	<li class="list-group-item" data-toggle="tooltip" title="{{item.itype.description}}" data-content="{{item.itype.description}}" data-placement="top" data-html="true"> 
 		{{item.itype}}
 		<div class="btn-toolbar pull-right" role="group">
 		<a href="{% url 'itemtransfer' item.id %}" class="btn btn-info btn-xs" role="button">Transfer</a>

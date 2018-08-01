@@ -5,7 +5,7 @@ from forms import *
 from django.contrib.auth.decorators import user_passes_test
 
 def is_gm(user):
-    return user.username=='admin'
+    return user.username=='admin' or user.username=='town1'
 
 @user_passes_test(is_gm)
 def index(request):
@@ -18,12 +18,11 @@ def index(request):
     gmactions.remove('__module__')
     context = {'players':players, 'items':items, 'abilities':abilities, 'gmactions':gmactions}
     return render(request, 'gminterface/index.html', context)
-    #return HttpResponse("Hello, world. You are at the index")
 
 @user_passes_test(is_gm)
 def playerprofile(request, playername):
     player = User.objects.get(username=playername)
-    attributes = AttributeInstance.objects.filter(owner=player)
+    attributes = PlayerAttributeInstance.objects.filter(element=player)
     items = ItemInstance.objects.filter(owner=player)
     abilities = AbilityInstance.objects.filter(owner=player)
     context = {'player':player, 'items':items, 'abilities':abilities, 'attributes':attributes}
@@ -40,12 +39,6 @@ def abilityprofile(request, abilityid):
     ability = Ability.objects.get(id=abilityid)
     context = {'ability':ability}
     return render(request, 'gminterface/abilityprofile.html', context)
-
-@user_passes_test(is_gm)
-def attributeprofile(request, attributeid):
-    attribute = Attribute.objects.get(id=attributeid)
-    context = {'attribute':attribute}
-    return render(request, 'gminterface/attributeprofile.html', context)
 
 @user_passes_test(is_gm)
 def generateitem(request, itemid):
@@ -85,14 +78,14 @@ def deleteability(request, abilityid):
 
 @user_passes_test(is_gm)
 def changeattribute(request, attid):
-    att = AttributeInstance.objects.get(id=attid)
+    att = PlayerAttributeInstance.objects.get(id=attid)
     if request.method == 'POST':
-        form = AttributeInstanceForm(request.POST, instance=att)
+        form = PlayerAttributeInstanceForm(request.POST, instance=att)
         if form.is_valid():
             form.save()
             return redirect(att.owner.username)
     else:
-        form = AttributeInstanceForm(instance=att)
+        form = PlayerAttributeInstanceForm(instance=att)
     context={'form':form, 'main':att}
     return render(request, 'form.html', context)
 
