@@ -252,8 +252,8 @@ class vigilantekill():
             return result
 class planeswalk():
     questions = {
-            'choice':('Pick what you want to do', ('Gain 2 points', 'Spend N points to get another role', 'Spend 7 points to use Vigilante Role'))
-            'role':(('What Role action would you like?'), 'str')
+            'choice':('Pick what you want to do', ('Gain 2 points', 'Spend N points to get another role', 'Spend 7 points to use Vigilante Role')),
+            'role':('What Role action would you like?', 'str'),
             }
     @staticmethod
     def activate(parameters):
