@@ -131,20 +131,3 @@ from django.contrib.auth import login, authenticate
 #     messages = Message.objects.filter(addressee=player)
 #     context = {'messages':messages}
 #     return render(request, "playerinterface/inbox.html", context)
-
-def signup(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            return redirect('home')
-    else:
-        form = SignUpForm()
-    return render(request, 'playerinterface/signup.html', {'form': form})
-
-def profile(request):
-    return render(request, 'registration/profile.html')

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from engine.models import *
 
-forbidden_redirect = 'https://parahumans.wordpress.com/'
+forbidden_redirect = 'https://parahumans.wordpress.com/' # 'gm-forbidden'
 
 def is_gm(user, gameID):
 	try:
@@ -15,14 +15,10 @@ def is_gm(user, gameID):
 def forbidden(request):
 	return render(request, 'gminterface/forbidden.html')
 
-def init(request):
-	game = Game(name='Test Game')
-	game.save()
-	return redirect('../1')
-
 def index(request, gameID):
 	if not is_gm(request.user, gameID):
 		return redirect(forbidden_redirect)
+
 	game = GM.objects.get(game__id=gameID)
 	gms = GM.objects.filter(game__id=gameID)
 	players = Player.objects.filter(game__id=gameID)
@@ -32,12 +28,12 @@ def index(request, gameID):
 	context = {'game': game, 'gms': gms, 'players': players, 'items': items, 'conditions': conditions, 'triggers': triggers}
 	return render(request, 'gminterface/index.html', context)
 
-def playerprofile(request, gameID, player):
+def playerprofile(request, gameID, username):
 	if not is_gm(request.user, gameID):
 		return redirect(forbidden_redirect)
 
-	player = Player.objects.filter(game__id=gameID).filter(player__user__username=player)
-	items = Item.objects.filter(owners__user__username=player)
+	player = Player.objects.filter(game__id=gameID).filter(player__user__username=username)
+	items = Item.objects.filter(owners__user__username=username)
 	context = {'player': player, 'items': items}
 	return render(request, 'gminterface/playerprofile.html', context)
 

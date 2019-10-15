@@ -52,9 +52,6 @@ body {
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
       <ul class="nav navbar-nav">
-        <li class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="#">GM Administrivia <span class="caret"></span></a>
-        </li>
 	<li><a href="http://mafia.mit.edu">Forums</a></li>
 	{% if user.is_authenticated %}
 		<li><a href="{% url 'logout' %}">Logout</a></li>

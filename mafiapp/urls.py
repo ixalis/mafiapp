@@ -19,14 +19,15 @@ from django.urls import include, path
 from engine import views as engine_views
 from gminterface import views as gm_views
 from playerinterface import views as player_views
+from userinterface import views as user_views
 
 urlpatterns = [
-    path('engine/', engine_views.index, name='home'),
+    path('', user_views.home, name='home'),
+    path('signup/', user_views.signup, name='signup'),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/profile/', user_views.profile, name='profile'),
     path('gm/<int:gameID>/', gm_views.index, name='gm-index'),
     path('gm/forbidden/', gm_views.forbidden, name='gm-forbidden'),
-    path('gm/<int:gameID>/player/<str:player>', gm_views.playerprofile, name='gm-player-profile'),
+    path('gm/<int:gameID>/player/<str:username>', gm_views.playerprofile, name='gm-view-player'),
     path('admin/', admin.site.urls),
-    path('accounts/', include('django.contrib.auth.urls')),
-    path('accounts/profile/', player_views.profile, name='profile'),
-    path('signup/', player_views.signup, name='signup')
 ]
