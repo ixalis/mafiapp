@@ -13,10 +13,20 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.conf.urls import include, url
 from django.contrib import admin
+from django.urls import include, path
+
+from engine import views as engine_views
+from gminterface import views as gm_views
+from playerinterface import views as player_views
 
 urlpatterns = [
-    url(r'^engine/', include('engine.urls')),
-    url(r'^admin/', admin.site.urls),
+    path('engine/', engine_views.index, name='home'),
+    path('gm/<int:gameID>/', gm_views.index, name='gm-index'),
+    path('gm/forbidden/', gm_views.forbidden, name='gm-forbidden'),
+    path('gm/<int:gameID>/player/<str:player>', gm_views.playerprofile, name='gm-player-profile'),
+    path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/profile/', player_views.profile, name='profile'),
+    path('signup/', player_views.signup, name='signup')
 ]
