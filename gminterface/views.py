@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from engine.models import *
-
-forbidden_redirect = 'https://parahumans.wordpress.com/' # 'gm-forbidden'
+from django.contrib.auth.decorators import login_required
 
 def is_gm(user, gameID):
 	try:
@@ -12,12 +11,10 @@ def is_gm(user, gameID):
 	except:
 		return False
 
-def forbidden(request):
-	return render(request, 'gminterface/forbidden.html')
-
+@login_required
 def index(request, gameID):
 	if not is_gm(request.user, gameID):
-		return redirect(forbidden_redirect)
+		return render(request, 'userinterface/forbidden.html', {'message': 'You are not a GM of this game.'})
 
 	game = GM.objects.get(game__id=gameID)
 	gms = GM.objects.filter(game__id=gameID)
@@ -28,14 +25,32 @@ def index(request, gameID):
 	context = {'game': game, 'gms': gms, 'players': players, 'items': items, 'conditions': conditions, 'triggers': triggers}
 	return render(request, 'gminterface/index.html', context)
 
-def playerprofile(request, gameID, username):
+@login_required
+def player(request, gameID, playerID):
 	if not is_gm(request.user, gameID):
-		return redirect(forbidden_redirect)
+		return render(request, 'userinterface/forbidden.html', {'message': 'You are not a GM of this game.'})
 
-	player = Player.objects.filter(game__id=gameID).filter(player__user__username=username)
-	items = Item.objects.filter(owners__user__username=username)
-	context = {'player': player, 'items': items}
-	return render(request, 'gminterface/playerprofile.html', context)
+	player = Player.objects.filter(player__id=playerID).filter(game__id=gameID)
+	if (player.count() == 1):
+		items = Item.objects.filter(owners__id=playerID)
+		context = {'player': player.first(), 'items': items}
+		return render(request, 'gminterface/player.html', context)
+
+	return render(request, 'userinterface/forbidden.html', {'message': 'That player does not exist.'})
+
+@login_required
+def item(request, gameID, itemID):
+	if not is_gm(request.user, gameID):
+		return render(request, 'userinterface/forbidden.html', {'message': 'You are not a GM of this game.'})
+
+	item = Item.objects.filter(itemID).filter(game__id=gameID)
+	if (item.count() == 1):
+		owners = Player.objects.filter(items__id=itemID)
+		context = {'item': item.first(), 'owners': owners}
+		return render(request, 'gminterface/item.html', context)
+
+	return render(request, 'userinterface/forbidden.html', {'message': 'That item does not exist.'})
+
 
 # def itemprofile(request, itemid):
 # 	if not is_gm(request.user, gameID):

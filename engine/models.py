@@ -57,7 +57,7 @@ class Item(models.Model):
 
 	# Each Item is part of one Game, can have many Owners, and can have many Triggers.
 	game = models.ForeignKey(Game, on_delete=models.CASCADE)
-	owners = models.ManyToManyField(Player)
+	owners = models.ManyToManyField(Player, related_name='items')
 	triggers = models.ManyToManyField(Condition, through='Trigger', through_fields=('item', 'condition'))
 
 	def __str__(self):

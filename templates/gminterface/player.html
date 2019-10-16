@@ -1,0 +1,25 @@
+{% extends "base_generic.html" %}
+{% block content %}
+<h1> {{player}} </h1>
+
+<div class="col-sm-4">
+<div class="panel panel-default">
+<div class="panel-heading">Items</div>
+<div class="panel-body">
+	{% if items %}
+		<ul class="list-group">
+			{% for item in items %} 
+				<li class="list-group-item"> 
+					<a href="{% url 'gm-view-item' item.id %}">{{item}}</a>
+				</li>
+			{% endfor %}
+		</ul>
+	{% else %}
+		<p>This player has no items.</p>
+	{% endif %}
+</div>
+</div>
+</div>
+
+</div>
+{% endblock %}

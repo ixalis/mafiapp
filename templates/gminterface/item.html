@@ -1,0 +1,25 @@
+{% extends "base_generic.html" %}
+{% block content %}
+<h1> {{item}} </h1>
+
+<div class="col-sm-4">
+<div class="panel panel-default">
+<div class="panel-heading">Owners</div>
+<div class="panel-body">
+	{% if owners %}
+		<ul class="list-group">
+			{% for owner in owners %} 
+				<li class="list-group-owner"> 
+					<a href="{% url 'gm-view-player' owner %}">{{owner}}</a>
+				</li>
+			{% endfor %}
+		</ul>
+	{% else %}
+		<p>This item has no owners.</p>
+	{% endif %}
+</div>
+</div>
+</div>
+
+</div>
+{% endblock %}
