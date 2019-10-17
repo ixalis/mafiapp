@@ -73,10 +73,11 @@ def home(request):
 
 @login_required
 def join_game(request, gameID):
-	if not Game.objects.filter(id=gameID).exists():
-		return message(request, "This game does not exist.")
+	game = Game.objects.filter(id=gameID)
+	if not game.exists():
+		return message(request, "That game does not exist.")
 
-	game = Game.objects.get(id=gameID)
+	game = game.first()
 
 	if Player.objects.filter(user__username=request.user.username).filter(game__id=gameID).exists():
 		return message(request, "You cannot join " + game.name + " as a player, as you are already playing in it.")
@@ -84,7 +85,7 @@ def join_game(request, gameID):
 	if GM.objects.filter(user__username=request.user.username).filter(game__id=gameID).exists():
 		return message(request, "You cannot join " + game.name + " as a player, as you are GMing it.")
 
-	player = Player(user=request.user, game=game)
+	player = Player(user=request.user, game__id=gameID)
 	player.save()
 	return message(request, "You have successfully joined " + game.name + ".")
 

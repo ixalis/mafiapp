@@ -38,6 +38,8 @@ urlpatterns = [
     path('gm/<int:gameID>/toggle-joining/', gm_views.toggle_joining, name='gm-toggle-joining'),
     path('gm/<int:gameID>/player/<int:playerID>', gm_views.player, name='gm-view-player'),
 
+    path('player/<int:gameID>/', player_views.index, name='player-index'),
+
     path('debug/', user_views.debug, name='debug'),
     path('admin/', admin.site.urls),
 ]

@@ -14,7 +14,7 @@
 					<ul class="list-group" style="list-style-type: none;">
 						{% for player in players %}
 							<li class="list-group-item">
-								<a href="{% url 'home' %}" class="btn btn-mafiapp">{{player.game}}</a>
+								<a href="{% url 'player-index' player.game.id %}" class="btn btn-mafiapp">{{player.game}}</a>
 							</li>
 						{% endfor %}
 					</ul>
