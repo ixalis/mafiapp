@@ -1,58 +1,56 @@
 {% extends "base_generic.html" %}
+
 {% block content %}
-<h1> {{"GM INTERFACE FOR " + game.name}} </h1><!-- 
-<h4><a href= {%url 'history' %}>Game History</a></h4>
-<div class="row">
 
-<div class="col-sm-3">
-<div class="panel panel-default">
-<div class="panel-heading"> GM Action List </div>
-<div class="panel-body">
-<ul class="list-group">
-	{% for ability in gmactions %}
-	<li class="list-group-item"><a href={% url 'GMAbility' ability %}>{{ability}}</a></li>
-	{% endfor %}
-</ul>
-</div>
-</div>
-</div>-->
+<div style="display: flex; flex-direction: column; align-items: center;">
+	<h1>GM Interface For {{game.name}}</h1>
+	<br>
+	<br>
+	<div style="display: flex; width: 100%; justify-content: center; align-items: flex-start;">
+		<div class="col-sm-3">
+			<div class="panel panel-default">
+				<div class="panel-heading"> GM List </div>
+				<div class="panel-body">
+					<ul class="list-group" style="list-style-type: none;">
+						{% for gm in gms %}
+							<li class="list-group-item"><p>{{gm}}</p></li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</div>
 
-<div class="col-sm-3">
-<div class="panel panel-default">
-<div class="panel-heading"> GM List </div>
-<div class="panel-body">
-<ul class="list-group">
-	{% for gm in gms %}
-	<li class="list-group-item"><p>{{gm}}</p></li>
-	{% endfor %}
-</ul>
-</div>
-</div>
-</div>
+		<div class="col-sm-3">
+			<div class="panel panel-default">
+				<div class="panel-heading"> Player List </div>
+				<div class="panel-body">
+					<ul class="list-group" style="list-style-type: none;">
+						{% for player in players %}
+							<li class="list-group-item">
+								<a href="{% url 'gm-view-player' player.id %}">{{player}}</a>
+							</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</div>
 
-<div class="col-sm-3">
-<div class="panel panel-default">
-<div class="panel-heading"> Player List </div>
-<div class="panel-body">
-<ul class="list-group">
-	{% for player in players %}
-	<li class="list-group-item"><a href="{% url 'gm-view-player' player %}">{{player}}</a></li>
-	{% endfor %}
-</ul>
-</div>
-</div>
-</div>
+		<div class="col-sm-3">
+			<div class="panel panel-default">
+				<div class="panel-heading"> Item List </div>
+				<div class="panel-body">
+					<ul class="list-group" style="list-style-type: none;">
+						{% for item in items %}
+							<li class="list-group-item">
+								<a href="{% url 'gm-view-item' item.id %}">{{item}}</a>
+							</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
 
-<div class="col-sm-3">
-<div class="panel panel-default">
-<div class="panel-heading"> Item List </div>
-<div class="panel-body">
-<ul class="list-group">
-	{% for item in items %}
-	<li class="list-group-item"><a href="{% url 'itemprofile' item.id %}">{{item}}</a></li>
-	{% endfor %}
-</ul>
-</div>
-</div>
+	<a href="{% url 'gm-delete-game' game.id %}" class="btn btn-mafiapp">Delete This Game</a>
 </div>
 {% endblock %}

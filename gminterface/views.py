@@ -3,32 +3,36 @@ from engine.models import *
 from django.contrib.auth.decorators import login_required
 
 def is_gm(user, gameID):
-	try:
-		for gm in GM.objects.all():
-			if gm.game.id == gameID and gm.user.id == user.id:
-				return True
-			return False
-	except:
-		return False
+	return GM.objects.filter(game__id=gameID).filter(user=user).exists()
 
 @login_required
 def index(request, gameID):
 	if not is_gm(request.user, gameID):
-		return render(request, 'userinterface/forbidden.html', {'message': 'You are not a GM of this game.'})
+		return render(request, 'userinterface/message.html', {'message': 'You are not a GM of this game.'})
 
-	game = GM.objects.get(game__id=gameID)
+	game = Game.objects.get(id=gameID)
 	gms = GM.objects.filter(game__id=gameID)
 	players = Player.objects.filter(game__id=gameID)
 	items = Item.objects.filter(game__id=gameID)
 	conditions = Condition.objects.filter(game__id=gameID)
-	triggers = Trigger.objects.filter(game__id=gameID)
+	triggers = Trigger.objects.filter(item__game__id=gameID)
 	context = {'game': game, 'gms': gms, 'players': players, 'items': items, 'conditions': conditions, 'triggers': triggers}
 	return render(request, 'gminterface/index.html', context)
 
 @login_required
+def delete_game(request, gameID):
+	if not is_gm(request.user, gameID):
+		return render(request, 'userinterface/message.html', {'message': 'You are not a GM of this game.'})
+
+	game = Game.objects.get(id=gameID)
+	message = game.name + ' has been successfully deleted.'
+	game.delete()
+	return render(request, 'userinterface/message.html', {'message': message})
+
+@login_required
 def player(request, gameID, playerID):
 	if not is_gm(request.user, gameID):
-		return render(request, 'userinterface/forbidden.html', {'message': 'You are not a GM of this game.'})
+		return render(request, 'userinterface/message.html', {'message': 'You are not a GM of this game.'})
 
 	player = Player.objects.filter(player__id=playerID).filter(game__id=gameID)
 	if (player.count() == 1):
@@ -36,12 +40,12 @@ def player(request, gameID, playerID):
 		context = {'player': player.first(), 'items': items}
 		return render(request, 'gminterface/player.html', context)
 
-	return render(request, 'userinterface/forbidden.html', {'message': 'That player does not exist.'})
+	return render(request, 'userinterface/message.html', {'message': 'That player does not exist.'})
 
 @login_required
 def item(request, gameID, itemID):
 	if not is_gm(request.user, gameID):
-		return render(request, 'userinterface/forbidden.html', {'message': 'You are not a GM of this game.'})
+		return render(request, 'userinterface/message.html', {'message': 'You are not a GM of this game.'})
 
 	item = Item.objects.filter(itemID).filter(game__id=gameID)
 	if (item.count() == 1):
@@ -49,7 +53,7 @@ def item(request, gameID, itemID):
 		context = {'item': item.first(), 'owners': owners}
 		return render(request, 'gminterface/item.html', context)
 
-	return render(request, 'userinterface/forbidden.html', {'message': 'That item does not exist.'})
+	return render(request, 'userinterface/message.html', {'message': 'That item does not exist.'})
 
 
 # def itemprofile(request, itemid):

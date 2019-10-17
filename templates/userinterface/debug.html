@@ -1,0 +1,70 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column">
+	<div class="col-sm-3">
+		<div class="panel panel-default">
+			<div class="panel-heading"> Game List </div>
+			<div class="panel-body">
+				<ul class="list-group" style="list-style-type: none;">
+					{% for game in games %} 
+						<li class="list-group-game">{{game.name}}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-sm-3">
+		<div class="panel panel-default">
+			<div class="panel-heading"> Player List </div>
+			<div class="panel-body">
+				<ul class="list-group" style="list-style-type: none;">
+					{% for player in players %} 
+						<li class="list-group-player">{{player.user.username}} playing in {{player.game.name}}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-sm-3" >
+		<div class="panel panel-default">
+			<div class="panel-heading"> GM List </div>
+			<div class="panel-body">
+				<ul class="list-group" style="list-style-type: none;">
+					{% for gm in gms %} 
+						<li class="list-group-gm">{{gm.user.username}} GMing {{gm.game.name}}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-sm-3">
+		<div class="panel panel-default">
+			<div class="panel-heading"> Item List </div>
+			<div class="panel-body">
+				<ul class="list-group" style="list-style-type: none;">
+					{% for item in items %} 
+						<li class="list-group-item">{{item.name}} exists in {{item.game.name}}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-sm-3">
+		<div class="panel panel-default">
+			<div class="panel-heading"> Trigger List </div>
+			<div class="panel-body">
+				<ul class="list-group" style="list-style-type: none;">
+					{% for trigger in triggers %} 
+						<li class="list-group-trigger">{{trigger.condition.name}} causes {{trigger.item.name}} to trigger with effect {{trigger.effect.name}} and has data {{trigger.data}}</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

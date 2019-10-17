@@ -1,35 +1,43 @@
-{% extends 'base_generic.html' %}
+{% extends "base_generic.html" %}
 
 {% block content %}
-	{% if players %}
-		<h1>Games You're Playing In</h1>
 
-		<ul class="list-group">
+<div style="display: flex; flex-direction: column; align-items: center"> 
+	<h1 style="flex-grow: 0;">Dashboard</h1>
+	<br>
+	<br>
+	<div style="display: flex; width: 100%; justify-content: center; align-items: flex-start;">
+		<div class="col-sm-3">
+			<div class="panel panel-default">
+				<div class="panel-heading"> Games You're Playing In </div>
+				<div class="panel-body">
+					<ul class="list-group" style="list-style-type: none;">
+						{% for player in players %}
+							<li class="list-group-item">
+								<a href="{% url 'home' %}" class="btn btn-mafiapp">{{player}}</a>
+							</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</div>
 
-			{% for player in players %} 
-				<li class="list-group-player" data-toggle="tooltip" title="{{player.game.name}}">
-					<a href="{% url 'player-index' player.game.id %}" class="btn btn-info btn-xs" role="button">{{player.game.name}}</a>
-				</li>
-			{% endfor %}
-		
-		</ul>
-	{% else %}
-		<p>You're not playing in any games.</p>
-	{% endif %}
+		<div class="col-sm-3">
+			<div class="panel panel-default">
+				<div class="panel-heading"> Games You're GMing </div>
+				<div class="panel-body">
+					<ul class="list-group" style="list-style-type: none;">
+						{% for gm in gms %}
+							<li class="list-group-item">
+								<a href="{% url 'gm-index' gm.game.id %}" class="btn btn-mafiapp">{{gm.game}}</a>
+							</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
 
-	{% if players %}
-		<h1>Games You're GM'ing</h1>
-
-		<ul class="list-group">
-
-			{% for gm in gms %} 
-				<li class="list-group-gm" data-toggle="tooltip" title="{{gm.game.name}}">
-					<a href="{% url 'gm-index' gm.game.id %}" class="btn btn-info btn-xs" role="button">{{gm.game.name}}</a>
-				</li>
-			{% endfor %}
-		
-		</ul>
-	{% else %}
-		<p>You're not GM'ing any games.</p>
-	{% endif %}
+	<a href="{% url 'new-game' %}" class="btn btn-mafiapp" style="flex-grow: 0;">Create a new game</a>
+</div>
 {% endblock %}
