@@ -1,0 +1,30 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+<div style="display: flex; flex-direction: column; align-items: center;">
+	<h1>Account Info</h1>
+	<br>
+	<br>
+
+	<p style="font-size: 16px;"><b>Username:</b> {{user.username}}</p>
+
+	<p style="font-size: 16px;"><b>Email:</b> {{user.email}}</p>
+	<a href="{% url 'change-email' %}" class="btn btn-mafiapp">Change Email</a>
+	<br>
+	<br>
+
+	{% if user.profile.receiveEmails %}
+		<p style="font-size: 16px; font-weight:bold;">You currently DO receive email notifications.</p>
+		<a href="{% url 'toggle-receive-emails' %}" class="btn btn-mafiapp">Turn Off Email Notifications</a>
+	{% else %}
+		<p style="font-size: 16px; font-weight:bold;">You currently DO NOT receive email notifications.</p>
+		<a href="{% url 'toggle-receive-emails' %}" class="btn btn-mafiapp">Turn On Email Notifications</a>
+	{% endif %}
+	<br>
+	<br>
+
+	<a href="{% url 'change-password' %}" class="btn btn-mafiapp">Change Password</a>
+</div>
+
+{% endblock %}

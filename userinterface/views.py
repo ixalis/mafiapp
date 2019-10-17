@@ -28,6 +28,8 @@ def signup(request):
 			username = form.cleaned_data.get('username')
 			raw_password = form.cleaned_data.get('password1')
 			user = authenticate(username=username, password=raw_password)
+			profile = Profile(user=user)
+			profile.save()
 			login(request, user)
 			return redirect('home')
 
@@ -36,7 +38,29 @@ def signup(request):
 
 @login_required
 def profile(request):
-	return render(request, 'registration/profile.html')
+	return redirect('home')
+
+@login_required
+def account(request):
+	if not Profile.objects.filter(user=request.user):
+		profile = Profile(user=request.user)
+		profile.save()
+	return render(request, 'userinterface/account.html', {'user': request.user})
+
+@login_required
+def change_email(request):
+	return message(request, "Not yet supported, sorry.")
+
+@login_required
+def toggle_receive_emails(request):
+	profile = Profile.objects.get(user=request.user)
+	profile.receiveEmails = not profile.receiveEmails
+	profile.save()
+	return redirect('account')
+
+@login_required
+def change_password(request):
+	return message(request, "Not yet supported, sorry.")
 
 @login_required
 def home(request):
