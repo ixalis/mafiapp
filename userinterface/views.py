@@ -42,9 +42,6 @@ def profile(request):
 
 @login_required
 def account(request):
-	if not Profile.objects.filter(user=request.user):
-		profile = Profile(user=request.user)
-		profile.save()
 	return render(request, 'userinterface/account.html', {'user': request.user})
 
 @login_required

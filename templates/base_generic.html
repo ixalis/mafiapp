@@ -3,76 +3,73 @@
 {% load static %}
 
 <html lang="en">
-<head>
-  
-  {% block title %}<title>Live Action Mafia</title>{% endblock %}
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
-  <link rel="stylesheet" href="{% static 'css/generic.css' %}">
+	<head>
+		
+		{% block title %}<title>Live Action Mafia</title>{% endblock %}
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> 
+		<link rel="stylesheet" href="{% static 'css/generic.css' %}">
 
-<script>
-$(document).ready(function(){
-    $('[data-toggle="tooltip"]').tooltip();
-});
-</script>
-<script>
-$(document).ready(function(){
-    $('[data-toggle="popover"]').popover();
-});
-</script>
-{% block head %}
-{% endblock %}
+		<script>
+			$(document).ready(function(){
+				$('[data-toggle="tooltip"]').tooltip();
+			});
+		</script>
+		<script>
+			$(document).ready(function(){
+				$('[data-toggle="popover"]').popover();
+			});
+		</script>
 
-<style>
-body {
-	background-color: #f1efee;
-	font-family:"Roboto", sans-serif;
-}
-.list-group-item { word-wrap: break-word; }
-{% block style %}
-{% endblock %}
-</style>
-</head>
+		{% block head %}
+		{% endblock %}
 
+		<style>
+			body {
+				background-color: #f1efee;
+				font-family:"Roboto", sans-serif;
+			}
+			.list-group-item { word-wrap: break-word; }
 
-
-
-
-<body>
-
-<nav class="navbar navbar-inverse">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>                        
-      </button>
-      <a class="navbar-brand" href="{% url 'home' %}">Live Action Mafia</a>
-    </div>
-    <div class="collapse navbar-collapse" id="myNavbar">
-      <ul class="nav navbar-nav">
-	<li><a href="http://mafia.mit.edu">Forums</a></li>
-	{% if user.is_authenticated %}
-		<li><a href="{% url 'logout' %}">Logout</a></li>
-	{% else %}
-	<li><a href="{% url 'signup' %}"><span class="glyphicon glyphicon-user"></span>Sign Up</a></li>
-	<li><a href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span>Login</a></li>
-	{% endif %}
-      </ul>
-    </div>
-  </div>
-</nav>
+			{% block style %}
+			{% endblock %}
+		</style>
+	</head>
 
 
 
-<div class="container-fluid">
-	{% block content %} {% endblock %}
-</div>
+	<body>
+		<nav class="navbar navbar-inverse">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="{% url 'home' %}">Live Action Mafia</a>
+				</div>
+				<div class="collapse navbar-collapse" id="myNavbar">
+					<ul class="nav navbar-nav">
+						<li><a href="http://mafia.mit.edu">Forums</a></li>
+						{% if user.is_authenticated %}
+							<li><a href="{% url 'account' %}">Account</a></li>
+							<li><a href="{% url 'logout' %}">Logout</a></li>
+						{% else %}
+							<li><a href="{% url 'signup' %}"><span class="glyphicon glyphicon-user"></span>Sign Up</a></li>
+							<li><a href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span>Login</a></li>
+						{% endif %}
+					</ul>
+				</div>
+			</div>
+		</nav>
 
-</body>
+		<div class="container-fluid">
+			{% block content %} {% endblock %}
+		</div>
+	</body>
 </html>
