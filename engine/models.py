@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Game(models.Model):
-	name = models.CharField(max_length=200)
+	name = models.CharField(max_length=200, unique=True)
 	rules = models.TextField(blank=True)
 	can_join = models.BooleanField(default=True)
 

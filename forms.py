@@ -47,7 +47,3 @@ class NewGameForm(forms.Form):
 
 class ChangeEmailForm(forms.Form):
 	new_email = forms.CharField(label='New Email', max_length=200)
-
-class ChangePasswordForm(forms.Form):
-	password1 = forms.CharField(label='New Email', max_length=200)
-	password2 = forms.CharField(label='New Email', max_length=200)

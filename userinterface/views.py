@@ -94,6 +94,9 @@ def new_game(request):
 		form = NewGameForm(request.POST)
 		if form.is_valid():
 			game_name = form.cleaned_data.get('game_name')
+			if Game.objects.filter(name=game_name).exists():
+				return message(request, "A game with that name already exists.")
+
 			game = Game(name=game_name)
 			game.save()
 			gm = GM(user=request.user, game=game)
