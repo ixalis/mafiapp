@@ -1,7 +1,7 @@
 {% extends "base_generic.html" %}
 {% block content %}
 
-<form action="/new-game/" method="post">
+<form action="{% url 'new-game' %}" method="post">
     {% csrf_token %}
     {{form}}
     <input type="submit" value="Create Game" class="btn btn-mafiapp">

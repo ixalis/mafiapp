@@ -28,7 +28,6 @@ urlpatterns = [
     path('accounts/', user_views.account, name='account'),
     path('accounts/change-email', user_views.change_email, name='change-email'),
     path('accounts/toggle-receive-emails', user_views.toggle_receive_emails, name='toggle-receive-emails'),
-    path('accounts/change-password', user_views.change_password, name='change-password'),
     path('accounts/profile/', user_views.profile, name='profile'),
     path('new-game/', user_views.new_game, name='new-game'),
     path('join-game/<int:gameID>', user_views.join_game, name='join-game'),

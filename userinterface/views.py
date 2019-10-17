@@ -46,7 +46,15 @@ def account(request):
 
 @login_required
 def change_email(request):
-	return message(request, "Not yet supported, sorry.")
+	if request.method == 'POST':
+		form = ChangeEmailForm(request.POST)
+		if form.is_valid():
+			request.user.email = form.cleaned_data.get('new_email')
+			request.user.save()
+			return redirect('account')
+	else:
+		form = ChangeEmailForm()
+	return render(request, 'userinterface/change_email.html', {'form': form})
 
 @login_required
 def toggle_receive_emails(request):
@@ -54,10 +62,6 @@ def toggle_receive_emails(request):
 	profile.receiveEmails = not profile.receiveEmails
 	profile.save()
 	return redirect('account')
-
-@login_required
-def change_password(request):
-	return message(request, "Not yet supported, sorry.")
 
 @login_required
 def home(request):
