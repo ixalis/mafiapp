@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from engine.models import *
 from django.contrib.auth.decorators import login_required
+from util import *
 
 def is_gm(user, gameID):
 	return GM.objects.filter(game__id=gameID).filter(user=user).exists()
@@ -8,7 +9,7 @@ def is_gm(user, gameID):
 @login_required
 def index(request, gameID):
 	if not is_gm(request.user, gameID):
-		return render(request, 'userinterface/message.html', {'message': 'You are not a GM of this game.'})
+		return message(request, "You are not a GM of this game.")
 
 	game = Game.objects.get(id=gameID)
 	gms = GM.objects.filter(game__id=gameID)
@@ -20,32 +21,52 @@ def index(request, gameID):
 	return render(request, 'gminterface/index.html', context)
 
 @login_required
-def delete_game(request, gameID):
+def stop_gming(request, gameID):
 	if not is_gm(request.user, gameID):
-		return render(request, 'userinterface/message.html', {'message': 'You are not a GM of this game.'})
+		return message(request, "You are not a GM of this game.")
 
 	game = Game.objects.get(id=gameID)
-	message = game.name + ' has been successfully deleted.'
+	gm = GM.objects.filter(game__id=gameID).filter(user=request.user)
+	gm.delete()
+	return message(request, "You have successfully stopped GMing for " + game.name)
+
+@login_required
+def delete_game(request, gameID):
+	if not is_gm(request.user, gameID):
+		return message(request, "You are not a GM of this game.")
+
+	game = Game.objects.get(id=gameID)
+	m = game.name + " has been successfully deleted."
 	game.delete()
-	return render(request, 'userinterface/message.html', {'message': message})
+	return message(request, m)
+
+@login_required
+def toggle_joining(request, gameID):
+	if not is_gm(request.user, gameID):
+		return message(request, "You are not a GM of this game.")
+
+	game = Game.objects.get(id=gameID)
+	game.can_join = not game.can_join
+	game.save()
+	return redirect('gm-index', gameID=gameID)
 
 @login_required
 def player(request, gameID, playerID):
 	if not is_gm(request.user, gameID):
-		return render(request, 'userinterface/message.html', {'message': 'You are not a GM of this game.'})
+		return message(request, "You are not a GM of this game.")
 
-	player = Player.objects.filter(player__id=playerID).filter(game__id=gameID)
-	if (player.count() == 1):
+	player = Player.objects.filter(id=playerID).filter(game__id=gameID)
+	if (player.exists()):
 		items = Item.objects.filter(owners__id=playerID)
 		context = {'player': player.first(), 'items': items}
 		return render(request, 'gminterface/player.html', context)
 
-	return render(request, 'userinterface/message.html', {'message': 'That player does not exist.'})
+	return message(request, "That player does not exist.")
 
 @login_required
 def item(request, gameID, itemID):
 	if not is_gm(request.user, gameID):
-		return render(request, 'userinterface/message.html', {'message': 'You are not a GM of this game.'})
+		return message(request, "You are not a GM of this game.")
 
 	item = Item.objects.filter(itemID).filter(game__id=gameID)
 	if (item.count() == 1):
@@ -53,7 +74,7 @@ def item(request, gameID, itemID):
 		context = {'item': item.first(), 'owners': owners}
 		return render(request, 'gminterface/item.html', context)
 
-	return render(request, 'userinterface/message.html', {'message': 'That item does not exist.'})
+	return message(request, "That item does not exist.")
 
 
 # def itemprofile(request, itemid):

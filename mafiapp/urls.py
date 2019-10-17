@@ -27,9 +27,14 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('accounts/profile/', user_views.profile, name='profile'),
     path('new-game/', user_views.new_game, name='new-game'),
+    path('join-game/<int:gameID>', user_views.join_game, name='join-game'),
+
     path('gm/<int:gameID>/', gm_views.index, name='gm-index'),
+    path('gm/<int:gameID>/stop-gming/', gm_views.stop_gming, name='gm-stop-gming'),
     path('gm/<int:gameID>/delete/', gm_views.delete_game, name='gm-delete-game'),
+    path('gm/<int:gameID>/toggle-joining/', gm_views.toggle_joining, name='gm-toggle-joining'),
     path('gm/<int:gameID>/player/<int:playerID>', gm_views.player, name='gm-view-player'),
+
     path('debug/', user_views.debug, name='debug'),
     path('admin/', admin.site.urls),
 ]

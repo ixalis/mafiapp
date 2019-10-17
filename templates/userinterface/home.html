@@ -14,7 +14,7 @@
 					<ul class="list-group" style="list-style-type: none;">
 						{% for player in players %}
 							<li class="list-group-item">
-								<a href="{% url 'home' %}" class="btn btn-mafiapp">{{player}}</a>
+								<a href="{% url 'home' %}" class="btn btn-mafiapp">{{player.game}}</a>
 							</li>
 						{% endfor %}
 					</ul>
@@ -34,6 +34,21 @@
 						{% endfor %}
 					</ul>
 				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-sm-3">
+		<div class="panel panel-default">
+			<div class="panel-heading"> Games You Can Join </div>
+			<div class="panel-body">
+				<ul class="list-group" style="list-style-type: none;">
+					{% for game in joinable_games %}
+						<li class="list-group-item">
+							<a href="{% url 'join-game' game.id %}" class="btn btn-mafiapp">Join {{game}}</a>
+						</li>
+					{% endfor %}
+				</ul>
 			</div>
 		</div>
 	</div>

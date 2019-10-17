@@ -27,7 +27,7 @@
 					<ul class="list-group" style="list-style-type: none;">
 						{% for player in players %}
 							<li class="list-group-item">
-								<a href="{% url 'gm-view-player' player.id %}">{{player}}</a>
+								<a href="{% url 'gm-view-player' game.id player.id %}" class="btn btn-mafiapp">{{player}}</a>
 							</li>
 						{% endfor %}
 					</ul>
@@ -42,7 +42,7 @@
 					<ul class="list-group" style="list-style-type: none;">
 						{% for item in items %}
 							<li class="list-group-item">
-								<a href="{% url 'gm-view-item' item.id %}">{{item}}</a>
+								<a href="{% url 'gm-view-item' game.id item.id %}" class="btn btn-mafiapp">{{item}}</a>
 							</li>
 						{% endfor %}
 					</ul>
@@ -51,6 +51,21 @@
 		</div>
 	</div>
 
+	{% if game.can_join %}
+		<p style="font-size: 16px; font-weight:bold;">Users CAN currently join this game.</p>
+		<a href="{% url 'gm-toggle-joining' game.id %}" class="btn btn-mafiapp">Turn Off Joining</a>
+	{% else %}
+		<p style="font-size: 16px; font-weight:bold;">Users CANNOT currently join this game.</p>
+		<a href="{% url 'gm-toggle-joining' game.id %}" class="btn btn-mafiapp">Turn On Joining</a>
+	{% endif %}
+	<br>
+	<br>
+	<br>
+	<br>
+
+	<p style="font-size: 32px; font-weight:bold;">~~~DANGER ZONE~~~</p>
+	<a href="{% url 'gm-stop-gming' game.id %}" class="btn btn-mafiapp">Stop GMing For This Game</a>
+	<br>
 	<a href="{% url 'gm-delete-game' game.id %}" class="btn btn-mafiapp">Delete This Game</a>
 </div>
 {% endblock %}

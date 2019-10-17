@@ -1,12 +1,14 @@
 from django.shortcuts import render, redirect
-from engine.models import *
 from django.contrib.auth.decorators import login_required
-from forms import *
+from django.contrib.auth import login, authenticate
 from mafiapp.settings import DEBUG
+from engine.models import *
+from forms import *
+from util import *
 
 def debug(request):
 	if (not DEBUG):
-		return render(request, 'userinterface/message.html', {'message': "Currently not in debug mode."})
+		return message(request, "Currently not in debug mode.")
 
 	games = Game.objects.all()
 	players = Player.objects.all()
@@ -40,9 +42,26 @@ def profile(request):
 def home(request):
 	players = Player.objects.filter(user__username=request.user.username)
 	gms = GM.objects.filter(user__username=request.user.username)
-	games = Game.objects.all()
-	context = {'players': players, 'gms': gms, 'games': games}
+	joinable_games = Game.objects.filter(can_join=True)
+	context = {'players': players, 'gms': gms, 'joinable_games': joinable_games}
 	return render(request, 'userinterface/home.html', context)
+
+@login_required
+def join_game(request, gameID):
+	if not Game.objects.filter(id=gameID).exists():
+		return message(request, "This game does not exist.")
+
+	game = Game.objects.get(id=gameID)
+
+	if Player.objects.filter(user__username=request.user.username).filter(game__id=gameID).exists():
+		return message(request, "You cannot join " + game.name + " as a player, as you are already playing in it.")
+
+	if GM.objects.filter(user__username=request.user.username).filter(game__id=gameID).exists():
+		return message(request, "You cannot join " + game.name + " as a player, as you are GMing it.")
+
+	player = Player(user=request.user, game=game)
+	player.save()
+	return message(request, "You have successfully joined " + game.name + ".")
 
 @login_required
 def new_game(request):
